@@ -350,6 +350,8 @@ class TestSecret(unittest.TestCase):
 
     def test_list_secrets(self):
         self.test_create_secret()
+        self.test_create_secret()
+        self.test_create_secret()
 
         param = {
             'query': {
@@ -466,6 +468,25 @@ class TestSecret(unittest.TestCase):
             params, metadata=(('token', self.token),))
 
         self._print_data(result, 'test_stat_secret')
+
+    def test_stat_secret_distinct(self):
+        self.test_list_secrets()
+
+        params = {
+            'domain_id': self.domain.domain_id,
+            'query': {
+                'distinct': 'secret_id',
+                'page': {
+                    'start': 2,
+                    'limit': 1
+                }
+            }
+        }
+
+        result = self.secret_v1.Secret.stat(
+            params, metadata=(('token', self.token),))
+
+        self._print_data(result, 'test_stat_secret_distinct')
 
     def _create_secret_group(self, secrets=[]):
         name = utils.random_string()
