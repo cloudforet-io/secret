@@ -52,7 +52,7 @@ class TestSecretAPI(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        config.init_conf(service='secret')
+        config.init_conf(package='spaceone.secret')
         connect('test', host='mongomock://localhost')
         super().setUpClass()
 

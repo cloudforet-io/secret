@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-
 PROTO = {
-    'v1': {
-        'secret': ['Secret'],
-        'secret_group': ['SecretGroup']
-    }
+    'spaceone.secret.api.v1.secret': ['Secret'],
+    'spaceone.secret.api.v1.secret_group': ['SecretGroup']
 }

@@ -25,4 +25,4 @@ RUN python3 setup.py install && \
 EXPOSE ${SPACEONE_PORT}
 
 ENTRYPOINT ["spaceone"]
-CMD ["grpc", "secret"]
+CMD ["grpc", "spaceone.secret"]
