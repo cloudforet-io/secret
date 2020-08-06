@@ -15,7 +15,7 @@ class SecretConnectorManager(BaseManager):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         connector = config.get_global('CONNECTORS')
-        aws_config = connector.get('AwsSecretManagerConnector')
+        aws_config = connector.get('AWSSecretManagerConnector')
         vault_config = connector.get('VaultConnector')
         if aws_config:
             _LOGGER.debug(f'[SecretConnectorManager] Create AWSSecretManagerConnector')
