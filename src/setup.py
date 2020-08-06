@@ -36,7 +36,8 @@ setup(
         'mongoengine',
         'mongomock',
         'redis',
-        'boto3'
+        'boto3',
+        'hvac'
     ],
     zip_safe=False,
 )

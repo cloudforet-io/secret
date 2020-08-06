@@ -4,3 +4,4 @@ mongoengine
 mongomock
 redis
 boto3
+hvac

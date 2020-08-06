@@ -23,7 +23,11 @@ HANDLERS = {}
 
 CONNECTORS = {
     'IdentityConnector': {},
-    'AWSSecretManagerConnector': {}
+    'AWSSecretManagerConnector': {},
+    'VaultConnector': {
+#        url = 'http://vault:8200',
+#        token = 'myroot'
+    }
 }
 
 ENDPOINTS = {}
