@@ -20,10 +20,15 @@ CACHES = {
 }
 
 HANDLERS = {}
-
+ENCRYPT = False
 CONNECTORS = {
     'IdentityConnector': {},
     'AWSSecretManagerConnector': {},
+    'AWSKMSConnector': {
+        # "aws_access_key_id":"",
+        # "aws_secret_access_key":"",
+        # "region_name" : "",
+    },
     'VaultConnector': {
 #        url = 'http://vault:8200',
 #        token = 'myroot'

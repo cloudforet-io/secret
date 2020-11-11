@@ -2,12 +2,15 @@
 
 import logging
 
+from spaceone.core import config
 from spaceone.core.service import *
 from spaceone.secret.error.custom import *
 from spaceone.secret.manager.identity_manager import IdentityManager
 from spaceone.secret.manager.secret_manager import SecretManager
 from spaceone.secret.manager.secret_group_manager import SecretGroupManager
 from spaceone.secret.manager.secret_connector_manager import SecretConnectorManager
+
+from src.spaceone.secret.manager.encryption_manager import EncryptionManager
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -54,9 +57,18 @@ class SecretService(BaseService):
                 self._check_project(params['project_id'], domain_id)
 
         secret_vo = self.secret_mgr.create_secret(params)
-
+        secret_data = params['data']
+        if config.get_global('ENCRYPT'):
+            encrypt_mgr: EncryptionManager = self.locator.get_manager('EncryptionManager')
+            secret_data,encrypt_context = encrypt_mgr.encrypt_by_vo(secret_data,secret_vo)
+            self.secret_mgr.update_secret({
+                "secret_id":secret_vo.secret_id,
+                "domain_id":secret_vo.domain_id,
+                "encrypt":True,
+                "encrypt_context":encrypt_context,
+            })
         secret_conn_mgr: SecretConnectorManager = self.locator.get_manager('SecretConnectorManager')
-        secret_conn_mgr.create_secret(secret_vo.secret_id, params['data'])
+        secret_conn_mgr.create_secret(secret_vo.secret_id, secret_data)
 
         return secret_vo
 
@@ -141,7 +153,11 @@ class SecretService(BaseService):
 
         self.secret_mgr.get_secret(secret_id, domain_id)
         secret_data = self._get_secret_data(secret_id)
-
+        if config.get_global('ENCRYPT'):
+            secret_vo = self.secret_mgr.get_secret(params['secret_id'], params['domain_id'], params.get('only'))
+            if secret_vo.encrypt:
+                encrypt_mgr: EncryptionManager = self.locator.get_manager('EncryptionManager')
+                secret_data = encrypt_mgr.decrypt_by_vo(secret_data,secret_vo)
         return secret_data
 
     @transaction

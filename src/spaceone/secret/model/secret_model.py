@@ -19,6 +19,9 @@ class Secret(MongoModel):
     project_id = StringField(max_length=40, null=True, default=None)
     domain_id = StringField(max_length=255)
     created_at = DateTimeField(auto_now_add=True)
+    encrypt = BooleanField(default=False)
+    encrypt_context = DictField(default=None)
+
 
     meta = {
         'updatable_fields': [

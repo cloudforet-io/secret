@@ -2,3 +2,4 @@ from spaceone.secret.manager.secret_manager import SecretManager
 from spaceone.secret.manager.secret_group_manager import SecretGroupManager
 from spaceone.secret.manager.secret_connector_manager import SecretConnectorManager
 from spaceone.secret.manager.identity_manager import IdentityManager
+from spaceone.secret.manager.encryption_manager import EncryptionManager
