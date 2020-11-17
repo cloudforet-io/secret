@@ -15,3 +15,5 @@ test/reports
 test/_trial_temp
 
 .venv/
+
+test/api/reports/

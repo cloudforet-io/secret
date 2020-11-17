@@ -20,13 +20,15 @@ class Secret(MongoModel):
     domain_id = StringField(max_length=255)
     created_at = DateTimeField(auto_now_add=True)
     encrypt = BooleanField(default=False)
-    encrypt_context = DictField(default=None)
+    encrypt_data_key = StringField(default=None)
 
 
     meta = {
         'updatable_fields': [
             'name',
             'tags',
+            'encrypt',
+            'encrypt_data_key',
             'project_id'
         ],
         'exact_fields': [

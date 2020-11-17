@@ -31,18 +31,16 @@ class AWSKMSConnector(BaseConnector):
             self.client = boto3.client('kms', region_name=region_name)
         self.kms_key_id = self.config.get('kms_key_id')
 
-    def generate_data_key(self,encrypt_context:dict=None):
-        data_key = test.factories.secret.generate_data_key(
+    def generate_data_key(self):
+        data_key = self.client.generate_data_key(
             KeyId=self.kms_key_id,
-            KeySpec='AES_128',
-            EncryptionContext=encrypt_context,
+            KeySpec='AES_256',
         )
         return data_key['Plaintext'], data_key['CiphertextBlob']
 
-    def decrypt_data_key(self, encrypt_data_key,encrypt_context:dict=None):
+    def decrypt_data_key(self, encrypt_data_key,):
         response = self.client.decrypt(
             CiphertextBlob=encrypt_data_key,
             KeyId=self.kms_key_id,
-            EncryptionContext=encrypt_context
         )
         return response['Plaintext']
