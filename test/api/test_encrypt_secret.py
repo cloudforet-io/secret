@@ -12,11 +12,12 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from mongoengine import connect, disconnect_all
 from moto import mock_kms, mock_secretsmanager
 from spaceone.core import config, utils
+from spaceone.core.error import ERROR_CONNECTOR_CONFIGURATION
 from spaceone.core.locator import Locator
 from spaceone.core.unittest.runner import RichTestRunner
 
 from src.spaceone.secret.model.secret_model import Secret
-from src.spaceone.secret.service.secret_service import SecretService
+from src.spaceone.secret.service.secret_service import SecretData, SecretService
 from test.factories.secret import EncryptSecretFactory, SecretFactory
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -99,9 +100,10 @@ class TestDefaultSecretService(SpaceoneTestCase):
     def test_get_secret_data(self):
         SecretFactory.create_batch(10)
         secret_data = {"secret": f"{os.urandom(10)}"}
-        secret_1 = SecretFactory( secret_data=secret_data)
-        result = self.svc.get_data({"secret_id": secret_1.secret_id, "domain_id": secret_1.domain_id})
-        self.assertEqual(secret_data, result)
+        secret_1 = SecretFactory(secret_data=secret_data)
+        result:SecretData = self.svc.get_data({"secret_id": secret_1.secret_id, "domain_id": secret_1.domain_id})
+        self.assertFalse(result['encrypted'])
+        self.assertEqual(secret_data, result['data'])
 
     def _check_secretmanager_exists(self, secret_id):
         region = config.get_global('CONNECTORS', {}).get('AWSSecretManagerConnector', {}).get("region_name")
@@ -201,21 +203,34 @@ class TestEncryptSecretService(SpaceoneTestCase):
         result_vo: Secret = self.svc.create(secret_1)
         self.assertEqual(secret_1.get('domain_id'), result_vo.domain_id)
         self.assertEqual(secret_1.get('secret_type'), result_vo.secret_type)
-        self.assertTrue(result_vo.encrypt)
+        self.assertTrue(result_vo.encrypted)
         self.assertTrue(self._check_secretmanager_exists(result_vo.secret_id))
 
     def test_get_secret_data(self):
         EncryptSecretFactory.create_batch(10)
         secret_data = {"secret": utils.random_string()}
-        secret_1 = EncryptSecretFactory(encrypt=True, secret_data=secret_data)
+        secret_1 = EncryptSecretFactory(encrypted=True, secret_data=secret_data)
+
         result = self.svc.get_data({"secret_id": secret_1.secret_id, "domain_id": secret_1.domain_id})
-        self.assertNotEqual(secret_data, result)
-        self.assertEqual(result['encrypt_context'], {"secret_id": secret_1.secret_id, "domain_id": secret_1.domain_id})
-        self.assertEqual(secret_1.encrypt_data_key, result['encrypt_data_key'])
+
+        self.assertTrue(result['encrypted'])
+        self.assertIsNone(result.get('data'))
+        self.assertTrue(result['encrypted_data'])
+
+        options = result['encrypt_options']
+        options_key = options.keys()
+        self.assertIn('nonce',options_key)
+        self.assertIn('encrypt_type',options_key)
+        self.assertIn('encrypt_context',options_key)
+        self.assertIn('encrypt_data_key',options_key)
+
+        self.assertEqual(options['encrypt_type'], 'AWS_KMS')
+        self.assertEqual(options['encrypt_context'], {"secret_id": secret_1.secret_id, "domain_id": secret_1.domain_id})
+        self.assertEqual(secret_1.encrypt_data_key, options['encrypt_data_key'])
 
         # check decrypt
-        decrypt_secret_data = self._decrypt(result['encrypt_data_key'], result['nonce'], result['encrypt_data'],
-                                            result['encrypt_context'])
+        decrypt_secret_data = self._decrypt(options['encrypt_data_key'], options['nonce'], result['encrypted_data'],
+                                            options['encrypt_context'])
         self.assertEqual(secret_data, decrypt_secret_data)
 
     def _decrypt_data_key(self, encrypt_data_key):
@@ -260,17 +275,18 @@ class TestEncryptSecretService(SpaceoneTestCase):
         result_vo: Secret = self.svc.create(secret_1)
         self.assertEqual(secret_1.get('domain_id'), result_vo.domain_id)
         self.assertEqual(secret_1.get('secret_type'), result_vo.secret_type)
-        self.assertTrue(result_vo.encrypt)
+        self.assertTrue(result_vo.encrypted)
         self.assertTrue(self._check_secretmanager_exists(result_vo.secret_id))
 
         result = self.svc.get_data({"secret_id": result_vo.secret_id, "domain_id": result_vo.domain_id})
         self.assertNotEqual(secret_data, result)
-        self.assertEqual(result['encrypt_context'],
+        self.assertEqual(result['encrypt_options']['encrypt_context'],
                          {"domain_id": result_vo.domain_id, "secret_id": result_vo.secret_id})
 
         # check decrypt
-        decrypt_secret_data = self._decrypt(result['encrypt_data_key'], result['nonce'], result['encrypt_data'],
-                                            result['encrypt_context'])
+        options = result['encrypt_options']
+        decrypt_secret_data = self._decrypt(options['encrypt_data_key'], options['nonce'], result['encrypted_data'],
+                                            options['encrypt_context'])
         self.assertEqual(secret_data, decrypt_secret_data)
 
     def test_legacy_secret_data(self):
@@ -296,28 +312,43 @@ class TestEncryptSecretService(SpaceoneTestCase):
 
         config.set_global(ENCRYPT=False)
         legacy_vo: Secret = self.svc.create(legacy_secret)
-        self.assertFalse(legacy_vo.encrypt)
+        self.assertFalse(legacy_vo.encrypted)
 
         config.set_global(ENCRYPT=True)
         result_vo: Secret = self.svc.create(secret_1)
         self.assertTrue(self._check_secretmanager_exists(result_vo.secret_id))
 
-
         self.assertTrue(config.get_global('ENCRYPT'))
         # check legacy secret decrypt
         result = self.svc.get_data({"secret_id": legacy_vo.secret_id, "domain_id": legacy_vo.domain_id})
-        self.assertEqual(legacy_secret_data, result)
-
+        self.assertFalse(result['encrypted'])
+        self.assertIsNone(result.get('encrypted_data'))
+        self.assertIsNone(result.get('encrypt_options'))
+        self.assertEqual(legacy_secret_data, result['data'])
 
         result = self.svc.get_data({"secret_id": result_vo.secret_id, "domain_id": result_vo.domain_id})
-        self.assertNotEqual(secret_data, result)
-        self.assertEqual(result['encrypt_context'],
+        options = result['encrypt_options']
+        self.assertEqual(options['encrypt_context'],
                          {"domain_id": result_vo.domain_id, "secret_id": result_vo.secret_id})
 
         # check decrypt
-        decrypt_secret_data = self._decrypt(result['encrypt_data_key'], result['nonce'], result['encrypt_data'],
-                                            result['encrypt_context'])
+        decrypt_secret_data = self._decrypt(options['encrypt_data_key'], options['nonce'], result['encrypted_data'],
+                                            options['encrypt_context'])
         self.assertEqual(secret_data, decrypt_secret_data)
+
+    def test_unsupport_encrypt_type_config(self):
+        config.set_global(ENCRYPT_TYPE='404_TYPE')
+        secret_data = {
+            "sample": "abcd"
+        }
+        secret_1 = {
+            'name': f'random_{uuid.uuid4()}',
+            'data': secret_data,
+            'secret_type': 'CREDENTIALS',
+            'domain_id': 'domain_1234',
+        }
+        with self.assertRaises(ERROR_CONNECTOR_CONFIGURATION):
+            result_vo: Secret = self.svc.create(secret_1)
 
 
 if __name__ == "__main__":

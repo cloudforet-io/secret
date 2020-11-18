@@ -6,6 +6,7 @@ from typing import NewType, TypedDict, Union
 
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from spaceone.core import config
+from spaceone.core.error import ERROR_CONNECTOR_CONFIGURATION
 from spaceone.core.manager import BaseManager
 
 from src.spaceone.secret.model.secret_model import Secret
@@ -20,18 +21,23 @@ class EnvelopeEncryptionData(TypedDict):
 
 EncryptDataKey = NewType('EncryptDataKey', str)
 
+EncryptTypeConnector = {
+    'AWS_KMS':"AWSKMSConnector"
+}
+
 
 class EncryptionManager(BaseManager):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        connector = config.get_global('CONNECTORS')
-        kms_config = connector.get('AWSKMSConnector')
-        if kms_config:
-            _LOGGER.debug(f'[EncryptionManager] Create AWSKMSConnector')
-            self.secret_conn = self.locator.get_connector('AWSKMSConnector')
+        encrypt_type = config.get_global('ENCRYPT_TYPE',"AWS_KMS")
+        if connector := EncryptTypeConnector.get(encrypt_type):
+            _LOGGER.debug(f'[EncryptionManager] Create {connector}')
+            self.secret_conn = self.locator.get_connector(connector)
         else:
-            _LOGGER.error('Unsupported Connector')
+            _LOGGER.error('Unsupported ENCRYPT_TYPE')
+            raise ERROR_CONNECTOR_CONFIGURATION(backend='EncryptionManager')
+
 
     def get_encrypt_context_by_vo(self, secret_vo: Secret):
         return {
@@ -46,7 +52,7 @@ class EncryptionManager(BaseManager):
         _data = data if isinstance(data, bytes) else data.encode()
         return json.loads(base64.b64decode(_data).decode())
 
-    def _make_EnvelopeEncryptionData(self, encrypt_data, nonce, encrypt_data_key):
+    def _make_EnvelopeEncryptionData(self, encrypt_data, nonce ):
         return EnvelopeEncryptionData(
             encrypt_data=base64.b64encode(encrypt_data).decode(),
             nonce=base64.b64encode(nonce).decode(),
@@ -62,7 +68,7 @@ class EncryptionManager(BaseManager):
         encrypt_data = aesgcm.encrypt(nonce, secret_data_b64, encrypt_context_b64)
         del data_key
 
-        envelope_encrypt_data = self._make_EnvelopeEncryptionData(encrypt_data, nonce, encrypt_data_key)
+        envelope_encrypt_data = self._make_EnvelopeEncryptionData(encrypt_data, nonce )
         encrypt_data_key = base64.b64encode(encrypt_data_key).decode()
         return envelope_encrypt_data, encrypt_data_key
 

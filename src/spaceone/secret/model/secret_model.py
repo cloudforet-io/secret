@@ -19,17 +19,19 @@ class Secret(MongoModel):
     project_id = StringField(max_length=40, null=True, default=None)
     domain_id = StringField(max_length=255)
     created_at = DateTimeField(auto_now_add=True)
-    encrypt = BooleanField(default=False)
-    encrypt_data_key = StringField(default=None)
+    encrypted = BooleanField(default=False)
+    encrypt_type = StringField(max_length=255,choices=('AWS_KMS',),null=True,default=None)
+    encrypt_data_key = StringField(default=None,null=True)
 
 
     meta = {
         'updatable_fields': [
             'name',
             'tags',
-            'encrypt',
+            'encrypted',
             'encrypt_data_key',
-            'project_id'
+            'encrypt_type',
+            'project_id',
         ],
         'exact_fields': [
             'secret_id',

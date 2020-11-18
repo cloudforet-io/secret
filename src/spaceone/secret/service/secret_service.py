@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+from typing import TypedDict, Union
 
 from spaceone.core import config
 from spaceone.core.service import *
@@ -8,9 +9,16 @@ from spaceone.secret.manager.identity_manager import IdentityManager
 from spaceone.secret.manager.secret_connector_manager import SecretConnectorManager
 from spaceone.secret.manager.secret_manager import SecretManager
 
-from src.spaceone.secret.manager.encryption_manager import EncryptionManager
+from spaceone.secret.manager.encryption_manager import EncryptionManager
 
 _LOGGER = logging.getLogger(__name__)
+
+
+class SecretData(TypedDict):
+    data: Union[None, dict]
+    encrypted_data: Union[None, str]
+    encrypted: bool
+    encrypt_options: Union[None, dict]
 
 
 @authentication_handler
@@ -61,7 +69,8 @@ class SecretService(BaseService):
             secret_data, encrypt_data_key = encrypt_mgr.encrypt_by_vo(secret_data, secret_vo)
             secret_vo = self.secret_mgr.update_secret_by_vo({
                 "encrypt_data_key": encrypt_data_key,
-                "encrypt": True,
+                "encrypt_type": config.get_global('ENCRYPT_TYPE'),
+                "encrypted": True,
             }, secret_vo)
 
         secret_conn_mgr: SecretConnectorManager = self.locator.get_manager('SecretConnectorManager')
@@ -132,7 +141,7 @@ class SecretService(BaseService):
 
     @transaction
     @check_required(['secret_id', 'domain_id'])
-    def get_data(self, params):
+    def get_data(self, params) -> SecretData:
         """ Get secret data through backend Secret service
 
         Args:
@@ -150,14 +159,25 @@ class SecretService(BaseService):
 
         self.secret_mgr.get_secret(secret_id, domain_id)
         secret_data = self._get_secret_data(secret_id)
-        if config.get_global('ENCRYPT'):
-            secret_vo = self.secret_mgr.get_secret(params['secret_id'], params['domain_id'])
-            if secret_vo.encrypt:
-                encrypt_mgr: EncryptionManager = self.locator.get_manager('EncryptionManager')
-                secret_data['encrypt_data_key'] = secret_vo.encrypt_data_key
-                secret_data['encrypt_context'] = encrypt_mgr.get_encrypt_context_by_vo(secret_vo)
-
-        return secret_data
+        data = SecretData(
+            encrypted=False,
+            data=secret_data,
+            encrypt_options=None,
+            encrypted_data=None,
+        )
+        secret_vo = self.secret_mgr.get_secret(params['secret_id'], params['domain_id'])
+        if secret_vo.encrypted:
+            encrypt_mgr: EncryptionManager = self.locator.get_manager('EncryptionManager')
+            data['encrypted'] = True
+            data['encrypted_data'] = secret_data['encrypt_data']
+            data['data'] = None
+            data['encrypt_options'] = {
+                'encrypt_type': secret_vo.encrypt_type,
+                'encrypt_data_key': secret_vo.encrypt_data_key,
+                'nonce': secret_data['nonce'],
+                'encrypt_context': encrypt_mgr.get_encrypt_context_by_vo(secret_vo)
+            }
+        return data
 
     @transaction
     @check_required(['secret_id', 'domain_id'])

@@ -21,6 +21,8 @@ CACHES = {
 
 HANDLERS = {}
 ENCRYPT = False
+ENCRYPT_TYPE = 'AWS_KMS'
+
 CONNECTORS = {
     'IdentityConnector': {},
     'AWSSecretManagerConnector': {},

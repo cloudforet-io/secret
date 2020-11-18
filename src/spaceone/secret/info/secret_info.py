@@ -9,13 +9,24 @@ from spaceone.secret.model.secret_model import Secret
 
 
 __all__ = ['SecretInfo', 'SecretsInfo', 'SecretDataInfo']
+
+from spaceone.secret.service.secret_service import SecretData
+
 _LOGGER = logging.getLogger(__name__)
 
 
-def SecretDataInfo(secret_data):
-    info = {
-        'data': change_struct_type(secret_data)
-    }
+def SecretDataInfo(secret_data_vo:SecretData,encrypt_type:str=None):
+    if secret_data_vo['encrypted']:
+        info = {
+            **secret_data_vo,
+            'encrypted_data': change_struct_type(secret_data_vo['encrypted_data']),
+            'encrypt_options':change_struct_type(secret_data_vo['encrypt_options']),
+        }
+    else:
+        info = {
+            **secret_data_vo,
+            'data': change_struct_type(secret_data_vo['data'])
+        }
 
     return secret_pb2.SecretDataInfo(**info)
 

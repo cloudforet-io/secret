@@ -51,7 +51,7 @@ class SecretFactory(factory.mongoengine.MongoEngineFactory):
     secret_id = factory.LazyFunction(partial(utils.generate_id, 'secret'))
     name = fuzzy.FuzzyText()
     schema = None
-    encrypt = False
+    encrypted = False
     provider = None
     service_account_id = None
     secret_type = fuzzy.FuzzyChoice(['CREDENTIALS'])
@@ -60,15 +60,18 @@ class SecretFactory(factory.mongoengine.MongoEngineFactory):
     encrypt_data_key = None
 
     @factory.post_generation
-    def secret_data(obj: Secret, create, extracted, **kwargs):
+    def secret_data(obj: Secret, create, extracted=None, **kwargs):
         if not create:
             return
         secret_data = extracted or {
             utils.random_string(): utils.random_string(),
             utils.random_string(): utils.random_string()
         }
-        if obj.encrypt:
-            secret_data = encrypt_data(obj.encrypt_context, secret_data)
+        if obj.encrypted:
+            secret_data, encrypt_data_key = encrypt_data(get_encrypt_context(obj), secret_data)
+            obj.encrypt_data_key = encrypt_data_key
+            obj.encrypt_type = 'AWS_KMS'
+            obj.save()
 
         region = config.get_global('CONNECTORS', {}).get('AWSSecretManagerConnector', {}).get("region_name")
 
@@ -91,28 +94,7 @@ class EncryptSecretFactory(SecretFactory):
     class Meta:
         model = Secret
 
-    encrypt = fuzzy.FuzzyChoice([True, False])
+    encrypted = fuzzy.FuzzyChoice([True, False])
     service_account_id = None
     encrypt_data_key = None
 
-    @factory.post_generation
-    def secret_data(obj: Secret, create, extracted=None, **kwargs):
-        if not create:
-            return
-        secret_data = extracted or {
-            utils.random_string(): utils.random_string(),
-            utils.random_string(): utils.random_string()
-        }
-        if obj.encrypt:
-            secret_data, encrypt_data_key = encrypt_data(get_encrypt_context(obj), secret_data)
-            obj.encrypt_data_key = encrypt_data_key
-            obj.save()
-
-        region = config.get_global('CONNECTORS', {}).get('AWSSecretManagerConnector', {}).get("region_name")
-
-        client = boto3.client('secretsmanager', region_name=region)
-        result = client.create_secret(
-            Name=obj.secret_id,
-            SecretString=json.dumps(secret_data),
-        )
-        # print(result)
