@@ -5,6 +5,7 @@ import sys
 import unittest
 import uuid
 from typing import Union
+import collections
 
 import boto3
 import pkg_resources
@@ -206,6 +207,12 @@ class TestEncryptSecretService(SpaceoneTestCase):
         self.assertTrue(result_vo.encrypted)
         self.assertTrue(self._check_secretmanager_exists(result_vo.secret_id))
 
+    def get_encrypt_context_by_vo(self, secret_vo: Secret)->bytes:
+        context = collections.OrderedDict()
+        context['domain_id'] = secret_vo.domain_id
+        context['secret_id'] = secret_vo.secret_id
+        return base64.b64encode(json.dumps(context).encode()).decode()
+
     def test_get_secret_data(self):
         EncryptSecretFactory.create_batch(10)
         secret_data = {"secret": utils.random_string()}
@@ -225,10 +232,11 @@ class TestEncryptSecretService(SpaceoneTestCase):
         self.assertIn('encrypt_data_key',options_key)
 
         self.assertEqual(options['encrypt_type'], 'AWS_KMS')
-        self.assertEqual(options['encrypt_context'], {"secret_id": secret_1.secret_id, "domain_id": secret_1.domain_id})
+        self.assertEqual(options['encrypt_context'], self.get_encrypt_context_by_vo(secret_1))
         self.assertEqual(secret_1.encrypt_data_key, options['encrypt_data_key'])
 
         # check decrypt
+        print(secret_1.secret_id)
         decrypt_secret_data = self._decrypt(options['encrypt_data_key'], options['nonce'], result['encrypted_data'],
                                             options['encrypt_context'])
         self.assertEqual(secret_data, decrypt_secret_data)
@@ -249,13 +257,20 @@ class TestEncryptSecretService(SpaceoneTestCase):
         _data = data if isinstance(data, bytes) else data.encode()
         return json.loads(base64.b64decode(_data).decode())
 
-    def _decrypt(self, encrypt_data_key, nonce, encrypt_secret_data, encrypt_context: dict):
+    def _decrypt(self, encrypt_data_key, nonce, encrypt_secret_data, encrypt_context: str):
         encrypt_secret_data = base64.b64decode(encrypt_secret_data.encode())
         encrypt_data_key = base64.b64decode(encrypt_data_key.encode())
         nonce = base64.b64decode(nonce.encode())
-        encrypt_context_b64 = self._dict_to_b64(encrypt_context)
+        encrypt_context_b64 = encrypt_context.encode()
 
         data_key = self._decrypt_data_key(encrypt_data_key)
+
+        print({
+            "data_key":data_key,
+            "nonce":nonce,
+            "context":encrypt_context_b64
+        })
+
         aesgcm = AESGCM(data_key)
 
         secret_data = aesgcm.decrypt(nonce, encrypt_secret_data, encrypt_context_b64)
@@ -280,8 +295,7 @@ class TestEncryptSecretService(SpaceoneTestCase):
 
         result = self.svc.get_data({"secret_id": result_vo.secret_id, "domain_id": result_vo.domain_id})
         self.assertNotEqual(secret_data, result)
-        self.assertEqual(result['encrypt_options']['encrypt_context'],
-                         {"domain_id": result_vo.domain_id, "secret_id": result_vo.secret_id})
+        self.assertEqual(result['encrypt_options']['encrypt_context'],self.get_encrypt_context_by_vo(result_vo))
 
         # check decrypt
         options = result['encrypt_options']
@@ -328,8 +342,7 @@ class TestEncryptSecretService(SpaceoneTestCase):
 
         result = self.svc.get_data({"secret_id": result_vo.secret_id, "domain_id": result_vo.domain_id})
         options = result['encrypt_options']
-        self.assertEqual(options['encrypt_context'],
-                         {"domain_id": result_vo.domain_id, "secret_id": result_vo.secret_id})
+        self.assertEqual(options['encrypt_context'],self.get_encrypt_context_by_vo(result_vo))
 
         # check decrypt
         decrypt_secret_data = self._decrypt(options['encrypt_data_key'], options['nonce'], result['encrypted_data'],

@@ -8,7 +8,7 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from spaceone.core import config
 from spaceone.core.error import ERROR_CONNECTOR_CONFIGURATION
 from spaceone.core.manager import BaseManager
-
+import collections
 from src.spaceone.secret.model.secret_model import Secret
 
 _LOGGER = logging.getLogger(__name__)
@@ -39,11 +39,12 @@ class EncryptionManager(BaseManager):
             raise ERROR_CONNECTOR_CONFIGURATION(backend='EncryptionManager')
 
 
-    def get_encrypt_context_by_vo(self, secret_vo: Secret):
-        return {
-            "domain_id": secret_vo.domain_id,
-            "secret_id": secret_vo.secret_id,
-        }
+    def get_encrypt_context_by_vo(self, secret_vo: Secret)->bytes:
+        context = collections.OrderedDict()
+        context['domain_id'] = secret_vo.domain_id
+        context['secret_id'] = secret_vo.secret_id
+        encrypt_context_b64 = self._dict_to_b64(context)
+        return encrypt_context_b64
 
     def _dict_to_b64(self, data: dict):
         return base64.b64encode(json.dumps(data).encode())
@@ -58,14 +59,13 @@ class EncryptionManager(BaseManager):
             nonce=base64.b64encode(nonce).decode(),
         )
 
-    def encrypt(self, secret_data, encrypt_context) -> (EnvelopeEncryptionData, EncryptDataKey):
+    def encrypt(self, secret_data:dict, encrypt_context:bytes) -> (EnvelopeEncryptionData, EncryptDataKey):
         secret_data_b64 = self._dict_to_b64(secret_data)
-        encrypt_context_b64 = self._dict_to_b64(encrypt_context)
         nonce = os.urandom(12)
         data_key, encrypt_data_key = self.secret_conn.generate_data_key()  # data_key spec must be AES_256
 
         aesgcm = AESGCM(data_key)
-        encrypt_data = aesgcm.encrypt(nonce, secret_data_b64, encrypt_context_b64)
+        encrypt_data = aesgcm.encrypt(nonce, secret_data_b64, encrypt_context)
         del data_key
 
         envelope_encrypt_data = self._make_EnvelopeEncryptionData(encrypt_data, nonce )

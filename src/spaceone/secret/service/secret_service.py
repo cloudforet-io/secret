@@ -175,7 +175,7 @@ class SecretService(BaseService):
                 'encrypt_type': secret_vo.encrypt_type,
                 'encrypt_data_key': secret_vo.encrypt_data_key,
                 'nonce': secret_data['nonce'],
-                'encrypt_context': encrypt_mgr.get_encrypt_context_by_vo(secret_vo)
+                'encrypt_context': encrypt_mgr.get_encrypt_context_by_vo(secret_vo).decode()
             }
         return data
 

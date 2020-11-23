@@ -1,3 +1,4 @@
 -r ./pip_requirements.txt
 moto
 mongomock
+grpcio-testing

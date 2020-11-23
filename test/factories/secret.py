@@ -3,7 +3,7 @@ import json
 import os
 from datetime import datetime
 from functools import partial
-
+import collections
 import boto3
 import factory
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
@@ -33,6 +33,12 @@ def encrypt_data(encrypt_context, secret_data):
     nonce = os.urandom(12)
 
     data_key, encrypt_data_key = generate_data_key()  # data_key spec must be AES_256
+    print({
+        "data_key": data_key,
+        "nonce": nonce,
+        "encrypt_context": encrypt_context,
+        "secret_data": secret_data
+    })
     print(data_key, secret_data)
     aesgcm = AESGCM(data_key)
     encrypt_data = aesgcm.encrypt(nonce, secret_data_b64, encrypt_context_b64)
@@ -84,10 +90,10 @@ class SecretFactory(factory.mongoengine.MongoEngineFactory):
 
 
 def get_encrypt_context(obj):
-    return {
-        "domain_id": obj.domain_id,
-        "secret_id": obj.secret_id,
-    }
+    context = collections.OrderedDict()
+    context['domain_id'] = obj.domain_id
+    context['secret_id'] = obj.secret_id
+    return context
 
 
 class EncryptSecretFactory(SecretFactory):
