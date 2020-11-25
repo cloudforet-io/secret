@@ -18,7 +18,6 @@ from spaceone.api.secret.v1.secret_pb2 import CreateSecretRequest, GetSecretRequ
 from spaceone.core import config, utils
 from spaceone.core.unittest.runner import RichTestRunner
 
-from src.spaceone.secret.api.v1.secret import Secret as SecretAPI
 from src.spaceone.secret.model.secret_model import Secret, _LOGGER
 from test.api.test_encrypt_secret import SpaceoneTestCase
 from test.factories.secret import EncryptSecretFactory, SecretFactory
