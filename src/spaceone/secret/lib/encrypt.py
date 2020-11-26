@@ -32,7 +32,7 @@ Secrete Service Decrypt Example
 >>>                        result['encrypt_secret_data'], # result!! not options
 >>>                        options['encrypt_context'],
 >>>                        region_name=region_name
->>>                        )ddd
+>>>                        )
 
 """
 
