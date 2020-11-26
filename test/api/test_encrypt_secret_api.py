@@ -112,7 +112,6 @@ class TestDefaultSecretAPI(SpaceoneGrpcTestCase):
         context['secret_id'] = secret_vo['secret_id'] if isinstance(secret_vo, dict) else secret_vo.secret_id
         return base64.b64encode(json.dumps(context).encode()).decode()
 
-
     def test_get_secret(self):
         SecretFactory.create_batch(10)
         secret_1 = SecretFactory()
@@ -337,6 +336,8 @@ class TestEncryptSecretAPI(SpaceoneGrpcTestCase):
         decrypt_secret_data = self._decrypt(options['encrypt_data_key'], options['nonce'], result['encrypted_data'],
                                             options['encrypt_context'].encode())
         self.assertEqual(secret_data, decrypt_secret_data)
+
+
 
 
 if __name__ == "__main__":
