@@ -39,7 +39,6 @@ def encrypt_data(encrypt_context, secret_data):
         "encrypt_context": encrypt_context,
         "secret_data": secret_data
     })
-    print(data_key, secret_data)
     aesgcm = AESGCM(data_key)
     encrypt_data = aesgcm.encrypt(nonce, secret_data_b64, encrypt_context_b64)
     del data_key
