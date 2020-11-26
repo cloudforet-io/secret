@@ -39,7 +39,7 @@ class SecretConnector(BaseConnector):
     def get_secret_data(self, secret_id, domain_id):
         data = self.client.Secret.get_data({'secret_id': secret_id, 'domain_id': domain_id},
                                            metadata=self.transaction.get_connection_meta())
-        secret_data = MessageToDict(data,preserving_proto_field_name=True)
+        secret_data = MessageToDict(data, preserving_proto_field_name=True)
         if data.get('encrypted'):
             options = secret_data.get('encrypt_options')
             if options.get('encrypt_type') == 'AWS_KMS':
@@ -51,8 +51,11 @@ class SecretConnector(BaseConnector):
                     options['encrypt_context'],
                     region_name=self.config.get('region_name')
                 )
+                data = {
+                    "data": secret_data,
+                }
 
             else:
                 NotImplementedError(f"{options.get('encrypt_type')} does not support yet")
 
-        return secret_data
+        return data
