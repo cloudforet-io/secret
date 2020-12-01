@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
-
 import logging
 import functools
-
-from spaceone.core.pygrpc.message_type import *
+from spaceone.api.core.v1 import tag_pb2
 from spaceone.api.secret.v1 import secret_pb2
+from spaceone.core.pygrpc.message_type import *
 from spaceone.secret.model.secret_model import Secret
 
 
@@ -29,7 +27,7 @@ def SecretInfo(secret_vo: Secret, minimal=False):
 
     if minimal is False:
         info.update({
-            'tags': change_struct_type(secret_vo.tags),
+            'tags': [tag_pb2.Tag(key=tag.key, value=tag.value) for tag in secret_vo.tags],
             'schema': secret_vo.schema,
             'provider': secret_vo.provider,
             'service_account_id': secret_vo.service_account_id,

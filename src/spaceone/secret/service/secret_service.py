@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import logging
 
 from spaceone.core.service import *
@@ -31,7 +29,7 @@ class SecretService(BaseService):
                 'name': 'str',
                 'data': 'dict',
                 'secret_type': 'str',
-                'tags': 'dict',
+                'tags': 'list',
                 'schema': 'str',
                 'service_account_id': 'str',
                 'project_id': 'str',
@@ -69,7 +67,7 @@ class SecretService(BaseService):
             params (dict): {
                 'secret_id': 'str',
                 'name': 'str' ,
-                'tags': 'dict',
+                'tags': 'list',
                 'project_id': 'str',
                 'release_project': 'bool',
                 'domain_id': 'str'
@@ -166,6 +164,7 @@ class SecretService(BaseService):
     @check_required(['domain_id'])
     @append_query_filter(['secret_id', 'name', 'secret_type', 'secret_group_id', 'schema', 'provider',
                           'service_account_id', 'domain_id'])
+    @change_tag_filter('tags')
     @append_keyword_filter(['secret_id', 'name', 'schema', 'provider'])
     def list(self, params):
         """ List secrets
@@ -201,6 +200,7 @@ class SecretService(BaseService):
     @transaction
     @check_required(['query', 'domain_id'])
     @append_query_filter(['domain_id'])
+    @append_keyword_filter(['secret_id', 'name', 'schema', 'provider'])
     def stat(self, params):
         """
         Args:

@@ -110,14 +110,7 @@ class TestSecret(unittest.TestCase):
     def _create_domain(cls):
         name = utils.random_string()
         param = {
-            'name': name,
-            'tags': {
-                utils.random_string(): utils.random_string(),
-                utils.random_string(): utils.random_string()
-            },
-            'config': {
-                'aaa': 'bbbb'
-            }
+            'name': name
         }
 
         cls.domain = cls.identity_v1.Domain.create(param)
@@ -167,7 +160,6 @@ class TestSecret(unittest.TestCase):
 
         params = {
             'name': name,
-            'tags': {'aa': 'bb'},
             'domain_id': self.domain.domain_id
         }
 
@@ -186,7 +178,6 @@ class TestSecret(unittest.TestCase):
         params = {
             'name': name,
             'project_group_id': project_group_id,
-            'tags': {'aa': 'bb'},
             'domain_id': self.domain.domain_id
         }
 
@@ -229,15 +220,22 @@ class TestSecret(unittest.TestCase):
             utils.random_string(): utils.random_string()
         }
 
-        param = {'name': name,
-                 'domain_id': self.domain.domain_id,
-                 'tags': {
-                     utils.random_string(): utils.random_string(),
-                     utils.random_string(): utils.random_string()
-                 },
-                 'data': self.secret_data,
-                 'secret_type': 'CREDENTIALS'
-                 }
+        param = {
+            'name': name,
+            'domain_id': self.domain.domain_id,
+            'tags': [
+                {
+                    'key': utils.random_string(),
+                    'value': utils.random_string()
+                }, {
+                    'key': utils.random_string(),
+                    'value': utils.random_string()
+                }
+
+            ],
+            'data': self.secret_data,
+            'secret_type': 'CREDENTIALS'
+        }
 
         self.secret = self.secret_v1.Secret.create(param, metadata=(('token', self.token),))
         print_message(self.secret, 'test_create_secret')
@@ -303,14 +301,22 @@ class TestSecret(unittest.TestCase):
     def test_update_secret_tag(self):
         self.test_create_secret()
 
-        tags = {'a': '123'}
-        param = {'secret_id': self.secret.secret_id,
-                 'domain_id': self.domain.domain_id,
-                 'tags': tags}
+        tags = [
+            {
+                'key': 'aaa',
+                'value': '123'
+            }
+        ]
+        param = {
+            'secret_id': self.secret.secret_id,
+            'domain_id': self.domain.domain_id,
+            'tags': tags
+        }
 
         self.secret = self.secret_v1.Secret.update(param, metadata=(('token', self.token),))
         print_message(self.secret, 'test_update_secret_tag')
-        self.assertEqual(MessageToDict(self.secret.tags), tags)
+        secret_data = MessageToDict(self.secret, preserving_proto_field_name=True)
+        self.assertEqual(secret_data['tags'], tags)
 
     def test_update_secret_project(self):
         self.test_create_secret_with_project()
@@ -488,12 +494,9 @@ class TestSecret(unittest.TestCase):
 
     def _create_secret_group(self, secrets=[]):
         name = utils.random_string()
-        param = {'name': name,
-                 'domain_id': self.domain.domain_id,
-                 'tags': {
-                     utils.random_string(): utils.random_string(),
-                     utils.random_string(): utils.random_string()
-                 }
+        param = {
+            'name': name,
+            'domain_id': self.domain.domain_id
         }
 
         self.secret_group = self.secret_v1.SecretGroup.create(param, metadata=(('token', self.token),))
