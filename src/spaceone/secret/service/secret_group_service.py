@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import logging
 
 from spaceone.core.service import *
@@ -27,7 +25,7 @@ class SecretGroupService(BaseService):
         Args:
             params (dict): {
                 'name': 'str',
-                'tags': 'dict',
+                'tags': 'list',
                 'domain_id': 'str'
             }
 
@@ -46,7 +44,7 @@ class SecretGroupService(BaseService):
             params (dict): {
                 'secret_group_id' : 'str',
                 'name': 'str',
-                'tags': 'dict',
+                'tags': 'list',
                 'domain_id': 'str'
             }
 
@@ -156,6 +154,7 @@ class SecretGroupService(BaseService):
     @transaction
     @check_required(['domain_id'])
     @append_query_filter(['secret_group_id', 'name', 'secret_id', 'domain_id'])
+    @change_tag_filter('tags')
     @append_keyword_filter(['secret_group_id', 'name'])
     def list(self, params):
         """ List secret groups
@@ -180,6 +179,7 @@ class SecretGroupService(BaseService):
     @transaction
     @check_required(['query', 'domain_id'])
     @append_query_filter(['domain_id'])
+    @append_keyword_filter(['secret_group_id', 'name'])
     def stat(self, params):
         """
         Args:

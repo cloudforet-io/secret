@@ -69,11 +69,7 @@ class TestSecretGroup(unittest.TestCase):
     def _create_domain(cls):
         name = utils.random_string()
         param = {
-            'name': name,
-            'tags': {utils.random_string(): utils.random_string(), utils.random_string(): utils.random_string()},
-            'config': {
-                'aaa': 'bbbb'
-            }
+            'name': name
         }
 
         cls.domain = cls.identity_v1.Domain.create(param)
@@ -123,15 +119,12 @@ class TestSecretGroup(unittest.TestCase):
             utils.random_string(): utils.random_string(),
             utils.random_string(): utils.random_string()
         }
-        param = {'name': name,
-                 'domain_id': self.domain.domain_id,
-                 'tags': {
-                     utils.random_string(): utils.random_string(),
-                     utils.random_string(): utils.random_string()
-                 },
-                 'data': self.data,
-                 'secret_type': 'CREDENTIALS'
-             }
+        param = {
+            'name': name,
+            'domain_id': self.domain.domain_id,
+            'data': self.data,
+            'secret_type': 'CREDENTIALS'
+        }
 
         self.secret = self.secret_v1.Secret.create(param, metadata=(('token', self.token),))
         self.secrets.append(self.secret)
@@ -139,13 +132,19 @@ class TestSecretGroup(unittest.TestCase):
 
     def test_create_secret_group_only(self):
         name = utils.random_string()
-        param = {'name': name,
-                 'domain_id': self.domain.domain_id,
-                 'tags': {
-                     utils.random_string(): utils.random_string(),
-                     utils.random_string(): utils.random_string()
-                 }
-             }
+        param = {
+            'name': name,
+            'domain_id': self.domain.domain_id,
+            'tags': [
+                {
+                    'key': utils.random_string(),
+                    'value': utils.random_string()
+                }, {
+                    'key': utils.random_string(),
+                    'value': utils.random_string()
+                }
+            ]
+        }
 
         self.secret_group = self.secret_v1.SecretGroup.create(param, metadata=(('token', self.token),))
 
@@ -161,13 +160,19 @@ class TestSecretGroup(unittest.TestCase):
         if name is None:
             name = utils.random_string()
 
-        param = {'name': name,
-                 'domain_id': self.domain.domain_id,
-                 'tags': {
-                     utils.random_string(): utils.random_string(),
-                     utils.random_string(): utils.random_string()
-                 }
-             }
+        param = {
+            'name': name,
+            'domain_id': self.domain.domain_id,
+            'tags': [
+                {
+                    'key': utils.random_string(),
+                    'value': utils.random_string()
+                }, {
+                    'key': utils.random_string(),
+                    'value': utils.random_string()
+                }
+            ]
+        }
 
         self.secret_group = self.secret_v1.SecretGroup.create(param, metadata=(('token', self.token),))
 
@@ -191,13 +196,21 @@ class TestSecretGroup(unittest.TestCase):
     def test_update_secret_group_tag(self):
         self.test_create_secret_group_only()
 
-        tags = {'a': '123'}
-        param = {'secret_group_id': self.secret_group.secret_group_id,
-                 'domain_id': self.domain.domain_id,
-                 'tags': tags}
+        tags = [
+            {
+                'key': 'aaa',
+                'value': '123'
+            }
+        ]
+        param = {
+            'secret_group_id': self.secret_group.secret_group_id,
+            'domain_id': self.domain.domain_id,
+            'tags': tags
+        }
 
         self.secret_group = self.secret_v1.SecretGroup.update(param, metadata=(('token', self.token),))
-        self.assertEqual(MessageToDict(self.secret_group.tags), tags)
+        secret_group_data = MessageToDict(self.secret_group, preserving_proto_field_name=True)
+        self.assertEqual(secret_group_data['tags'], tags)
 
     def test_update_secret_group_name(self):
         self.test_create_secret_group_only()
