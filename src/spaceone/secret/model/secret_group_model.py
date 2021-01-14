@@ -25,10 +25,6 @@ class SecretGroup(MongoModel):
             'name',
             'tags'
         ],
-        'exact_fields': [
-            'secret_group_id',
-            'domain_id'
-        ],
         'minimal_fields': [
             'secret_group_id',
             'name'
@@ -40,7 +36,8 @@ class SecretGroup(MongoModel):
             'secret_group_id',
             'domain_id',
             ('tags.key', 'tags.value')
-        ]
+        ],
+        'auto_create_index': False
     }
 
     def append(self, key, data):

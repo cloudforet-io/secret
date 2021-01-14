@@ -30,15 +30,6 @@ class Secret(MongoModel):
             'tags',
             'project_id'
         ],
-        'exact_fields': [
-            'secret_id',
-            'secret_type',
-            'schema',
-            'provider',
-            'service_account_id',
-            'project_id',
-            'domain_id'
-        ],
         'minimal_fields': [
             'secret_id',
             'name',
@@ -56,7 +47,8 @@ class Secret(MongoModel):
             'project_id',
             'domain_id',
             ('tags.key', 'tags.value')
-        ]
+        ],
+        'auto_create_index': False
     }
 
     @classmethod
