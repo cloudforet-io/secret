@@ -36,8 +36,7 @@ class SecretGroup(MongoModel):
             'secret_group_id',
             'domain_id',
             ('tags.key', 'tags.value')
-        ],
-        'auto_create_index': False
+        ]
     }
 
     def append(self, key, data):
