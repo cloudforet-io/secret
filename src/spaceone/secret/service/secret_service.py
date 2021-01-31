@@ -12,6 +12,7 @@ _LOGGER = logging.getLogger(__name__)
 
 @authentication_handler
 @authorization_handler
+@mutation_handler
 @event_handler
 class SecretService(BaseService):
 
@@ -19,7 +20,10 @@ class SecretService(BaseService):
         super().__init__(*args, **kwargs)
         self.secret_mgr: SecretManager = self.locator.get_manager('SecretManager')
 
-    @transaction
+    @transaction(append_meta={
+        'authorization.scope': 'PROJECT',
+        'authorization.require_project_id': True
+    })
     @check_required(['name', 'data', 'secret_type', 'domain_id'])
     def create(self, params):
         """ Create secret
@@ -58,7 +62,7 @@ class SecretService(BaseService):
 
         return secret_vo
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'PROJECT'})
     @check_required(['secret_id', 'domain_id'])
     def update(self, params):
         """ Update secret
@@ -94,7 +98,7 @@ class SecretService(BaseService):
 
         return secret_vo
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'PROJECT'})
     @check_required(['secret_id', 'domain_id'])
     def delete(self, params):
         """ Delete secret
@@ -119,7 +123,7 @@ class SecretService(BaseService):
 
         self.secret_mgr.delete_secret_by_vo(secret_vo)
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'SYSTEM'})
     @check_required(['secret_id', 'domain_id'])
     def get_data(self, params):
         """ Get secret data through backend Secret service
@@ -142,7 +146,7 @@ class SecretService(BaseService):
 
         return secret_data
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'PROJECT'})
     @check_required(['secret_id', 'domain_id'])
     def get(self, params):
         """ Get secret
@@ -160,10 +164,13 @@ class SecretService(BaseService):
 
         return self.secret_mgr.get_secret(params['secret_id'], params['domain_id'], params.get('only'))
 
-    @transaction
+    @transaction(append_meta={
+        'authorization.scope': 'PROJECT',
+        'mutation.append_parameter': {'user_projects': 'authorization.projects'}
+    })
     @check_required(['domain_id'])
     @append_query_filter(['secret_id', 'name', 'secret_type', 'secret_group_id', 'schema', 'provider',
-                          'service_account_id', 'domain_id'])
+                          'service_account_id', 'domain_id', 'user_projects'])
     @change_tag_filter('tags')
     @append_keyword_filter(['secret_id', 'name', 'schema', 'provider'])
     def list(self, params):
@@ -180,7 +187,8 @@ class SecretService(BaseService):
                 'service_account_id': 'str',
                 'include_secret_group': 'bool',
                 'domain_id': 'str',
-                'query': 'dict (spaceone.api.core.v1.Query)'
+                'query': 'dict (spaceone.api.core.v1.Query)',
+                'user_projects': 'list', // from meta
             }
 
         Returns:

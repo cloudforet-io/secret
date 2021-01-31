@@ -10,6 +10,7 @@ _LOGGER = logging.getLogger(__name__)
 
 @authentication_handler
 @authorization_handler
+@mutation_handler
 @event_handler
 class SecretGroupService(BaseService):
 
@@ -17,7 +18,7 @@ class SecretGroupService(BaseService):
         super().__init__(*args, **kwargs)
         self.secret_group_mgr: SecretGroupManager = self.locator.get_manager('SecretGroupManager')
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['name', 'domain_id'])
     def create(self, params):
         """ Create secret group
@@ -35,7 +36,7 @@ class SecretGroupService(BaseService):
 
         return self.secret_group_mgr.create_secret_group(params)
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['secret_group_id', 'domain_id'])
     def update(self, params):
         """ Update secret group
@@ -57,7 +58,7 @@ class SecretGroupService(BaseService):
 
         return self.secret_group_mgr.update_secret_group_by_vo(params, secret_group_vo)
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['secret_group_id', 'domain_id'])
     def delete(self, params):
         """ Delete secret group
@@ -77,7 +78,7 @@ class SecretGroupService(BaseService):
 
         self.secret_group_mgr.delete_secret_group_by_vo(secret_group_vo)
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['secret_group_id', 'secret_id', 'domain_id'])
     def add_secret(self, params):
         """ Add secret to secret group
@@ -105,7 +106,7 @@ class SecretGroupService(BaseService):
 
         return secret_group_map_vo
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['secret_group_id', 'secret_id', 'domain_id'])
     def remove_secret(self, params):
         """ Remove secret from secret group
@@ -131,7 +132,7 @@ class SecretGroupService(BaseService):
         secret_group_map_vo = self._get_secret_group_map(secret_group_vo, secret_vo)
         self.secret_group_mgr.remove_secret(secret_group_vo, secret_group_map_vo)
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['secret_group_id', 'domain_id'])
     def get(self, params):
         """ Get secret group
@@ -151,7 +152,7 @@ class SecretGroupService(BaseService):
         return self.secret_group_mgr.get_secret_group(params['secret_group_id'], params['domain_id'],
                                                       params.get('only'))
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['domain_id'])
     @append_query_filter(['secret_group_id', 'name', 'secret_id', 'domain_id'])
     @change_tag_filter('tags')
@@ -176,7 +177,7 @@ class SecretGroupService(BaseService):
         query = params.get('query', {})
         return self.secret_group_mgr.list_secret_groups(query)
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['query', 'domain_id'])
     @append_query_filter(['domain_id'])
     @change_tag_filter('tags')

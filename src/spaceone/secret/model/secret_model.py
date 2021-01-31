@@ -35,6 +35,9 @@ class Secret(MongoModel):
             'name',
             'secret_type'
         ],
+        'change_query_keys': {
+            'user_projects': 'project_id'
+        },
         'ordering': [
             'name'
         ],
