@@ -1,5 +1,6 @@
 import os
 import unittest
+import pprint
 from google.protobuf.json_format import MessageToDict
 
 from spaceone.core import utils, pygrpc
@@ -11,13 +12,21 @@ class TestSecretGroup(unittest.TestCase):
     config = utils.load_yaml_from_file(
         os.environ.get('SPACEONE_TEST_CONFIG_FILE', './config.yml'))
 
+    pp = pprint.PrettyPrinter(indent=4)
     identity_v1 = None
     secret_v1 = None
     domain = None
     domain_owner = None
     owner_id = None
     owner_pw = None
-    token = None
+    owner_token = None
+
+    def _print_data(self, data, description=None):
+        print()
+        if description:
+            print(f'[ {description} ]')
+
+        self.pp.pprint(MessageToDict(data, preserving_proto_field_name=True))
 
     @classmethod
     def setUpClass(cls):
@@ -33,13 +42,63 @@ class TestSecretGroup(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         super(TestSecretGroup, cls).tearDownClass()
-        cls.identity_v1.DomainOwner.delete({
-            'domain_id': cls.domain.domain_id,
-            'owner_id': cls.owner_id
-        })
+        cls.identity_v1.DomainOwner.delete(
+            {
+                'domain_id': cls.domain.domain_id,
+                'owner_id': cls.owner_id
+            },
+            metadata=(('token', cls.owner_token),)
+        )
+        print(f'>> delete domain owner: {cls.owner_id}')
 
         if cls.domain:
-            cls.identity_v1.Domain.delete({'domain_id': cls.domain.domain_id})
+            cls.identity_v1.Domain.delete(
+                {
+                    'domain_id': cls.domain.domain_id
+                },
+                metadata=(('token', cls.owner_token),)
+            )
+            print(f'>> delete domain: {cls.domain.name} ({cls.domain.domain_id})')
+
+    @classmethod
+    def _create_domain(cls):
+        name = utils.random_string()
+        params = {
+            'name': name
+        }
+
+        cls.domain = cls.identity_v1.Domain.create(params)
+        print(f'domain_id: {cls.domain.domain_id}')
+        print(f'domain_name: {cls.domain.name}')
+
+    @classmethod
+    def _create_domain_owner(cls):
+        cls.owner_id = utils.random_string()
+        cls.owner_pw = utils.generate_password()
+
+        owner = cls.identity_v1.DomainOwner.create({
+            'owner_id': cls.owner_id,
+            'password': cls.owner_pw,
+            'domain_id': cls.domain.domain_id
+        })
+
+        cls.domain_owner = owner
+        print(f'owner_id: {cls.owner_id}')
+        print(f'owner_pw: {cls.owner_pw}')
+
+    @classmethod
+    def _issue_owner_token(cls):
+        token_params = {
+            'user_type': 'DOMAIN_OWNER',
+            'user_id': cls.owner_id,
+            'credentials': {
+                'password': cls.owner_pw
+            },
+            'domain_id': cls.domain.domain_id
+        }
+
+        issue_token = cls.identity_v1.Token.issue(token_params)
+        cls.owner_token = issue_token.access_token
 
     def setUp(self):
         self.secret_groups = []
@@ -53,7 +112,7 @@ class TestSecretGroup(unittest.TestCase):
             self.secret_v1.Secret.delete(
                 {'secret_id': secret.secret_id,
                  'domain_id': self.domain.domain_id},
-                metadata=(('token', self.token),)
+                metadata=(('token', self.owner_token),)
             )
             print(f'delete secret: {secret.secret_id}')
 
@@ -61,57 +120,9 @@ class TestSecretGroup(unittest.TestCase):
             self.secret_v1.SecretGroup.delete(
                 {'secret_group_id': secret_group.secret_group_id,
                  'domain_id': self.domain.domain_id},
-                metadata=(('token', self.token),)
+                metadata=(('token', self.owner_token),)
             )
             print(f'delete secret group: {secret_group.secret_group_id}')
-
-    @classmethod
-    def _create_domain(cls):
-        name = utils.random_string()
-        param = {
-            'name': name
-        }
-
-        cls.domain = cls.identity_v1.Domain.create(param)
-        print(f'domain_id: {cls.domain.domain_id}')
-        print(f'domain_name: {cls.domain.name}')
-
-    @classmethod
-    def _create_domain_owner(cls):
-        cls.owner_id = utils.random_string()[0:10]
-        cls.owner_pw = 'qwerty'
-
-        param = {
-            'owner_id': cls.owner_id,
-            'password': cls.owner_pw,
-            'name': 'Steven' + utils.random_string()[0:5],
-            'timezone': 'utc+9',
-            'email': 'Steven' + utils.random_string()[0:5] + '@mz.co.kr',
-            'mobile': '+821026671234',
-            'domain_id': cls.domain.domain_id
-        }
-
-        owner = cls.identity_v1.DomainOwner.create(
-            param
-        )
-        cls.domain_owner = owner
-        print(f'owner_id: {cls.owner_id}')
-        print(f'owner_pw: {cls.owner_pw}')
-
-    @classmethod
-    def _issue_owner_token(cls):
-        token_param = {
-            'credentials': {
-                'user_type': 'DOMAIN_OWNER',
-                'user_id': cls.owner_id,
-                'password': cls.owner_pw
-            },
-            'domain_id': cls.domain.domain_id
-        }
-
-        issue_token = cls.identity_v1.Token.issue(token_param)
-        cls.token = issue_token.access_token
-        print(f'token: {cls.token}')
 
     def test_create_secret(self):
         name = utils.random_string()
@@ -126,7 +137,7 @@ class TestSecretGroup(unittest.TestCase):
             'secret_type': 'CREDENTIALS'
         }
 
-        self.secret = self.secret_v1.Secret.create(param, metadata=(('token', self.token),))
+        self.secret = self.secret_v1.Secret.create(param, metadata=(('token', self.owner_token),))
         self.secrets.append(self.secret)
         self.assertEqual(self.secret.name, name)
 
@@ -146,7 +157,7 @@ class TestSecretGroup(unittest.TestCase):
             ]
         }
 
-        self.secret_group = self.secret_v1.SecretGroup.create(param, metadata=(('token', self.token),))
+        self.secret_group = self.secret_v1.SecretGroup.create(param, metadata=(('token', self.owner_token),))
 
         print_message(self.secret_group, 'test_create_secret_group_only')
 
@@ -174,7 +185,7 @@ class TestSecretGroup(unittest.TestCase):
             ]
         }
 
-        self.secret_group = self.secret_v1.SecretGroup.create(param, metadata=(('token', self.token),))
+        self.secret_group = self.secret_v1.SecretGroup.create(param, metadata=(('token', self.owner_token),))
 
         for secret in self.secrets:
             self._add_secret_to_secret_group(secret.secret_id)
@@ -189,7 +200,7 @@ class TestSecretGroup(unittest.TestCase):
             'secret_group_id': self.secret_group.secret_group_id,
             'secret_id': secret_id,
             'domain_id': self.domain.domain_id
-        }, metadata=(('token', self.token),))
+        }, metadata=(('token', self.owner_token),))
 
         print_message(result, '_add_secret_to_secret_group')
 
@@ -208,7 +219,7 @@ class TestSecretGroup(unittest.TestCase):
             'tags': tags
         }
 
-        self.secret_group = self.secret_v1.SecretGroup.update(param, metadata=(('token', self.token),))
+        self.secret_group = self.secret_v1.SecretGroup.update(param, metadata=(('token', self.owner_token),))
         secret_group_data = MessageToDict(self.secret_group, preserving_proto_field_name=True)
         self.assertEqual(secret_group_data['tags'], tags)
 
@@ -221,7 +232,7 @@ class TestSecretGroup(unittest.TestCase):
                  'domain_id': self.domain.domain_id,
                 }
 
-        self.secret_group = self.secret_v1.SecretGroup.update(param, metadata=(('token', self.token),))
+        self.secret_group = self.secret_v1.SecretGroup.update(param, metadata=(('token', self.owner_token),))
 
         self.assertEqual(self.secret_group.name, name)
 
@@ -231,7 +242,7 @@ class TestSecretGroup(unittest.TestCase):
             'secret_group_id': self.secret_group.secret_group_id,
             'domain_id': self.domain.domain_id
         }
-        secret_group = self.secret_v1.SecretGroup.get(param, metadata=(('token', self.token),))
+        secret_group = self.secret_v1.SecretGroup.get(param, metadata=(('token', self.owner_token),))
         self.assertEqual(self.secret_group.name, secret_group.name)
 
     def test_list_secret_groups(self):
@@ -249,7 +260,7 @@ class TestSecretGroup(unittest.TestCase):
             }, 'domain_id': self.domain.domain_id
         }
 
-        result = self.secret_v1.SecretGroup.list(param, metadata=(('token', self.token),))
+        result = self.secret_v1.SecretGroup.list(param, metadata=(('token', self.owner_token),))
 
         self.assertEqual(result.total_count, 1)
 
@@ -261,7 +272,7 @@ class TestSecretGroup(unittest.TestCase):
             'domain_id': self.domain.domain_id
         }
 
-        result = self.secret_v1.SecretGroup.list(param, metadata=(('token', self.token),))
+        result = self.secret_v1.SecretGroup.list(param, metadata=(('token', self.owner_token),))
         print_message(result, 'test_list_secret_groups_query_1')
 
         self.assertEqual(1, result.total_count)
@@ -280,7 +291,7 @@ class TestSecretGroup(unittest.TestCase):
             'domain_id': self.domain.domain_id
         }
 
-        result = self.secret_v1.SecretGroup.list(param, metadata=(('token', self.token),))
+        result = self.secret_v1.SecretGroup.list(param, metadata=(('token', self.owner_token),))
 
         self.assertEqual(result.total_count, 2)
 
@@ -310,7 +321,7 @@ class TestSecretGroup(unittest.TestCase):
         }
 
         result = self.secret_v1.SecretGroup.stat(
-            params, metadata=(('token', self.token),))
+            params, metadata=(('token', self.owner_token),))
 
         print(result)
 
@@ -324,7 +335,7 @@ class TestSecretGroup(unittest.TestCase):
                  'domain_id': self.domain.domain_id
                 }
 
-        secret_group_map = self.secret_v1.SecretGroup.add_secret(param, metadata=(('token', self.token),))
+        secret_group_map = self.secret_v1.SecretGroup.add_secret(param, metadata=(('token', self.owner_token),))
 
         print_message(secret_group_map, 'test_add_secret_in_group')
         self.assertEqual(secret_group_map.secret_info.secret_id, self.secret.secret_id)
@@ -339,10 +350,10 @@ class TestSecretGroup(unittest.TestCase):
                  'domain_id': self.domain.domain_id
                  }
 
-        self.secret_group = self.secret_v1.SecretGroup.add_secret(param, metadata=(('token', self.token),))
+        self.secret_group = self.secret_v1.SecretGroup.add_secret(param, metadata=(('token', self.owner_token),))
 
         with self.assertRaises(Exception):
-            self.secret_v1.SecretGroup.add_secret(param, metadata=(('token', self.token),))
+            self.secret_v1.SecretGroup.add_secret(param, metadata=(('token', self.owner_token),))
 
     def test_remove_secret_in_group(self):
         self.test_create_secret_group()
@@ -354,7 +365,7 @@ class TestSecretGroup(unittest.TestCase):
             'domain_id': self.domain.domain_id
         }
 
-        self.secret_v1.SecretGroup.add_secret(param, metadata=(('token', self.token),))
+        self.secret_v1.SecretGroup.add_secret(param, metadata=(('token', self.owner_token),))
 
         param = {
             'secret_group_id': self.secret_group.secret_group_id,
@@ -362,7 +373,7 @@ class TestSecretGroup(unittest.TestCase):
             'domain_id': self.domain.domain_id
         }
 
-        self.secret_v1.SecretGroup.remove_secret(param, metadata=(('token', self.token),))
+        self.secret_v1.SecretGroup.remove_secret(param, metadata=(('token', self.owner_token),))
 
         param = {
             'secret_group_id': self.secret_group.secret_group_id,
@@ -370,7 +381,7 @@ class TestSecretGroup(unittest.TestCase):
             'domain_id': self.domain.domain_id
         }
 
-        results = self.secret_v1.Secret.list(param, metadata=(('token', self.token),))
+        results = self.secret_v1.Secret.list(param, metadata=(('token', self.owner_token),))
         self.assertEqual(self.secret_group.secret_group_id, self.secret_group.secret_group_id)
 
 
