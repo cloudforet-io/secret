@@ -4,7 +4,7 @@ from spaceone.core.service import *
 from spaceone.secret.error.custom import *
 from spaceone.secret.manager.identity_manager import IdentityManager
 from spaceone.secret.manager.secret_manager import SecretManager
-from spaceone.secret.manager.secret_group_manager import SecretGroupManager
+from spaceone.secret.model.secret_model import Secret
 from spaceone.secret.manager.secret_connector_manager import SecretConnectorManager
 
 _LOGGER = logging.getLogger(__name__)
@@ -35,6 +35,8 @@ class SecretService(BaseService):
                 'secret_type': 'str',
                 'tags': 'list',
                 'schema': 'str',
+                'encrypted': 'bool',
+                'encrypt_options': 'dict',
                 'service_account_id': 'str',
                 'project_id': 'str',
                 'domain_id': 'str
@@ -123,6 +125,34 @@ class SecretService(BaseService):
 
         self.secret_mgr.delete_secret_by_vo(secret_vo)
 
+    @transaction(append_meta={'authorization.scope': 'PROJECT'})
+    @check_required(['secret_id', 'data', 'domain_id'])
+    def update_data(self, params):
+        """ Update secret data through backend Secret service
+
+        Args:
+            params (dict): {
+                'secret_id': 'str',
+                'data': 'dict',
+                'encrypted': 'bool',
+                'encrypt_options': 'dict',
+                'domain_id': 'str'
+            }
+
+        Returns:
+            secret_data (dict)
+        """
+
+        domain_id = params['domain_id']
+        secret_id = params['secret_id']
+        data = params['data']
+
+        secret_vo = self.secret_mgr.get_secret(secret_id, domain_id)
+        self.secret_mgr.update_secret_by_vo(params, secret_vo)
+
+        secret_conn_mgr: SecretConnectorManager = self.locator.get_manager('SecretConnectorManager')
+        secret_conn_mgr.update_secret(secret_id, data)
+
     @transaction(append_meta={'authorization.scope': 'SYSTEM'})
     @check_required(['secret_id', 'domain_id'])
     def get_data(self, params):
@@ -141,10 +171,14 @@ class SecretService(BaseService):
         domain_id = params['domain_id']
         secret_id = params['secret_id']
 
-        self.secret_mgr.get_secret(secret_id, domain_id)
+        secret_vo: Secret = self.secret_mgr.get_secret(secret_id, domain_id)
         secret_data = self._get_secret_data(secret_id)
 
-        return secret_data
+        return {
+            'encrypted': secret_vo.encrypted,
+            'encrypt_options': secret_vo.encrypt_options,
+            'data': secret_data
+        }
 
     @transaction(append_meta={'authorization.scope': 'PROJECT'})
     @check_required(['secret_id', 'domain_id'])

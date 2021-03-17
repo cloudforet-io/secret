@@ -60,5 +60,11 @@ class VaultConnector(BaseConnector):
         response = self.client.secrets.kv.delete_metadata_and_all_versions(secret_id)
         return self._response(response)
 
+    def update_secret(self, secret_id, data):
+        self.delete_secret(secret_id)
+        response = self.create_secret(secret_id, data)
+
+        return self._response(response)
+
     def get_secret(self, secret_id):
         return self._response_value(self.client.secrets.kv.read_secret_version(path=secret_id))

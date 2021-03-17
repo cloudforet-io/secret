@@ -19,6 +19,8 @@ class Secret(MongoModel):
     tags = ListField(EmbeddedDocumentField(SecretTag))
     schema = StringField(max_length=40, null=True, default=None)
     provider = StringField(max_length=40, null=True, default=None)
+    encrypted = BooleanField(default=False)
+    encrypt_options = DictField()
     service_account_id = StringField(max_length=40, null=True, default=None)
     project_id = StringField(max_length=40, null=True, default=None)
     domain_id = StringField(max_length=255)
@@ -28,12 +30,15 @@ class Secret(MongoModel):
         'updatable_fields': [
             'name',
             'tags',
+            'encrypted',
+            'encrypted_options',
             'project_id'
         ],
         'minimal_fields': [
             'secret_id',
             'name',
-            'secret_type'
+            'secret_type',
+            'encrypted'
         ],
         'change_query_keys': {
             'user_projects': 'project_id'
@@ -46,6 +51,7 @@ class Secret(MongoModel):
             'secret_type',
             'schema',
             'provider',
+            'encrypted',
             'service_account_id',
             'project_id',
             'domain_id',
