@@ -27,7 +27,6 @@ class SecretConnectorManager(BaseManager):
         else:
             _LOGGER.error('Unsupported Connector')
 
-
     def create_secret(self, secret_id, data):
         def _rollback(secret_id):
             _LOGGER.info(f'[ROLLBACK] Delete secret data in secret store : {secret_id}')
@@ -36,7 +35,8 @@ class SecretConnectorManager(BaseManager):
         response = self.secret_conn.create_secret(secret_id, data)
         self.transaction.add_rollback(_rollback, secret_id)
 
-        return response
+    def update_secret(self, secret_id, data):
+        self.secret_conn.update_secret(secret_id, data)
 
     def delete_secret(self, secret_id):
         self.secret_conn.delete_secret(secret_id)

@@ -418,6 +418,29 @@ class TestSecret(unittest.TestCase):
 
         self.assertEqual(result.total_count, 4)
 
+    def test_update_secret_data(self):
+        self.test_create_secret()
+
+        update_secret_data = {
+            utils.random_string(): utils.random_string(),
+            utils.random_string(): utils.random_string()
+        }
+
+        param = {
+            'secret_id': self.secret.secret_id,
+            'data': update_secret_data,
+            'domain_id': self.domain.domain_id
+        }
+
+        self.secret_v1.Secret.update_data(param, metadata=(('token', self.owner_token),))
+
+        param = {
+            'secret_id': self.secret.secret_id,
+            'domain_id': self.domain.domain_id
+        }
+        result = self.secret_v1.Secret.get_data(param, metadata=(('token', self.owner_token),))
+        self.assertEqual(MessageToDict(result.data), update_secret_data)
+
     def test_get_secret_data(self):
         self.test_create_secret()
 

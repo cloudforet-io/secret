@@ -51,17 +51,25 @@ class AWSSecretManagerConnector(BaseConnector):
         return data_string
 
     def create_secret(self, secret_id, data):
-        secret_params = {
-            'Name': secret_id,
-            'SecretString': json.dumps(data),
-        }
+        response = self.client.create_secret(
+            Name=secret_id,
+            SecretString=json.dumps(data)
+        )
 
-        return self._response(self.client.create_secret(**secret_params))
+        return self._response(response)
 
     def delete_secret(self, secret_id):
         response = self.client.delete_secret(
             SecretId=secret_id,
             ForceDeleteWithoutRecovery=True
+        )
+
+        return self._response(response)
+
+    def update_secret(self, secret_id, data):
+        response = self.client.put_secret_value(
+            SecretId=secret_id,
+            SecretString=json.dumps(data)
         )
 
         return self._response(response)

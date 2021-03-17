@@ -26,6 +26,13 @@ class Secret(BaseAPI, secret_pb2_grpc.SecretServicer):
             secret_service.delete(params)
             return self.locator.get_info('EmptyInfo')
 
+    def update_data(self, request, context):
+        params, metadata = self.parse_request(request, context)
+
+        with self.locator.get_service('SecretService', metadata) as secret_service:
+            secret_service.update_data(params)
+            return self.locator.get_info('EmptyInfo')
+
     def get_data(self, request, context):
         params, metadata = self.parse_request(request, context)
 
