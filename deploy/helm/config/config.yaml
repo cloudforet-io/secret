@@ -38,6 +38,10 @@ GLOBAL:
     authorization:
     - backend: spaceone.core.handler.authorization_handler.AuthorizationGRPCHandler
       uri: grpc://identity:50051/v1/Authorization/verify
+    mutation:
+    - backend: spaceone.secret.handler.encrypt_mutation_handler.EncryptMutationHandler
+      ENCRYPT_ALGORITHM: AES
+      encrypt_key: <your AES key>
   CONNECTORS:
     IdentityConnector:
       endpoint:

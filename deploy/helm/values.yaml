@@ -28,9 +28,12 @@ application:
 application_scheduler: {}
 # Overwrite worker config
 application_worker: {}
+
+##########################
 # local sidecar
 ##########################
 #sidecar:
+
 
 
 ##########################
