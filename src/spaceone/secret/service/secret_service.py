@@ -1,6 +1,7 @@
 import logging
 
 from spaceone.core.service import *
+from spaceone.core import utils
 from spaceone.secret.error.custom import *
 from spaceone.secret.manager.identity_manager import IdentityManager
 from spaceone.secret.manager.secret_manager import SecretManager
@@ -33,7 +34,7 @@ class SecretService(BaseService):
                 'name': 'str',
                 'data': 'dict',
                 'secret_type': 'str',
-                'tags': 'list',
+                'tags': 'dict',
                 'schema': 'str',
                 'encrypted': 'bool',
                 'encrypt_options': 'dict',
@@ -47,6 +48,9 @@ class SecretService(BaseService):
         """
 
         domain_id = params['domain_id']
+
+        if 'tags' in params:
+            params['tags'] = utils.dict_to_tags(params['tags'])
 
         if 'service_account_id' in params:
             service_account_info = self._get_service_account(params['service_account_id'], domain_id)
@@ -73,7 +77,7 @@ class SecretService(BaseService):
             params (dict): {
                 'secret_id': 'str',
                 'name': 'str' ,
-                'tags': 'list',
+                'tags': 'dict',
                 'project_id': 'str',
                 'release_project': 'bool',
                 'domain_id': 'str'
@@ -89,6 +93,9 @@ class SecretService(BaseService):
         release_project = params.get('release_project', False)
 
         secret_vo = self.secret_mgr.get_secret(secret_id, domain_id)
+
+        if 'tags' in params:
+            params['tags'] = utils.dict_to_tags(params['tags'])
 
         if release_project:
             params['project_id'] = None

@@ -224,16 +224,10 @@ class TestSecret(unittest.TestCase):
         param = {
             'name': name,
             'domain_id': self.domain.domain_id,
-            'tags': [
-                {
-                    'key': utils.random_string(),
-                    'value': utils.random_string()
-                }, {
-                    'key': utils.random_string(),
-                    'value': utils.random_string()
-                }
-
-            ],
+            'tags': {
+                utils.random_string(): utils.random_string(),
+                utils.random_string(): utils.random_string()
+            },
             'data': self.secret_data,
             'secret_type': 'CREDENTIALS'
         }
@@ -302,12 +296,9 @@ class TestSecret(unittest.TestCase):
     def test_update_secret_tag(self):
         self.test_create_secret()
 
-        tags = [
-            {
-                'key': 'aaa',
-                'value': '123'
-            }
-        ]
+        tags = {
+            'update_key': 'update_value'
+        }
         param = {
             'secret_id': self.secret.secret_id,
             'domain_id': self.domain.domain_id,

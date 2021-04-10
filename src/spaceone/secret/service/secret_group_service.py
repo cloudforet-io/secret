@@ -1,6 +1,7 @@
 import logging
 
 from spaceone.core.service import *
+from spaceone.core import utils
 from spaceone.secret.error.custom import *
 from spaceone.secret.manager.secret_group_manager import SecretGroupManager
 from spaceone.secret.manager.secret_manager import SecretManager
@@ -26,13 +27,16 @@ class SecretGroupService(BaseService):
         Args:
             params (dict): {
                 'name': 'str',
-                'tags': 'list',
+                'tags': 'dict',
                 'domain_id': 'str'
             }
 
         Returns:
             secret_group_vo
         """
+
+        if 'tags' in params:
+            params['tags'] = utils.dict_to_tags(params['tags'])
 
         return self.secret_group_mgr.create_secret_group(params)
 
@@ -45,7 +49,7 @@ class SecretGroupService(BaseService):
             params (dict): {
                 'secret_group_id' : 'str',
                 'name': 'str',
-                'tags': 'list',
+                'tags': 'dict',
                 'domain_id': 'str'
             }
 
@@ -55,6 +59,9 @@ class SecretGroupService(BaseService):
 
         secret_group_vo = self.secret_group_mgr.get_secret_group(params['secret_group_id'],
                                                                  params['domain_id'])
+
+        if 'tags' in params:
+            params['tags'] = utils.dict_to_tags(params['tags'])
 
         return self.secret_group_mgr.update_secret_group_by_vo(params, secret_group_vo)
 
