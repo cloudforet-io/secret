@@ -146,15 +146,10 @@ class TestSecretGroup(unittest.TestCase):
         param = {
             'name': name,
             'domain_id': self.domain.domain_id,
-            'tags': [
-                {
-                    'key': utils.random_string(),
-                    'value': utils.random_string()
-                }, {
-                    'key': utils.random_string(),
-                    'value': utils.random_string()
-                }
-            ]
+            'tags': {
+                utils.random_string(): utils.random_string(),
+                utils.random_string(): utils.random_string()
+            }
         }
 
         self.secret_group = self.secret_v1.SecretGroup.create(param, metadata=(('token', self.owner_token),))
@@ -174,15 +169,10 @@ class TestSecretGroup(unittest.TestCase):
         param = {
             'name': name,
             'domain_id': self.domain.domain_id,
-            'tags': [
-                {
-                    'key': utils.random_string(),
-                    'value': utils.random_string()
-                }, {
-                    'key': utils.random_string(),
-                    'value': utils.random_string()
-                }
-            ]
+            'tags': {
+                utils.random_string(): utils.random_string(),
+                utils.random_string(): utils.random_string()
+            }
         }
 
         self.secret_group = self.secret_v1.SecretGroup.create(param, metadata=(('token', self.owner_token),))
@@ -207,12 +197,9 @@ class TestSecretGroup(unittest.TestCase):
     def test_update_secret_group_tag(self):
         self.test_create_secret_group_only()
 
-        tags = [
-            {
-                'key': 'aaa',
-                'value': '123'
-            }
-        ]
+        tags = {
+            'update_key': 'update_value'
+        }
         param = {
             'secret_group_id': self.secret_group.secret_group_id,
             'domain_id': self.domain.domain_id,

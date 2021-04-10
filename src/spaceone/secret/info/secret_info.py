@@ -1,8 +1,8 @@
 import logging
 import functools
-from spaceone.api.core.v1 import tag_pb2
 from spaceone.api.secret.v1 import secret_pb2
 from spaceone.core.pygrpc.message_type import *
+from spaceone.core import utils
 from spaceone.secret.model.secret_model import Secret
 
 
@@ -29,13 +29,13 @@ def SecretInfo(secret_vo: Secret, minimal=False):
 
     if minimal is False:
         info.update({
-            'tags': [tag_pb2.Tag(key=tag.key, value=tag.value) for tag in secret_vo.tags],
+            'tags': change_struct_type(utils.tags_to_dict(secret_vo.tags)),
             'schema': secret_vo.schema,
             'provider': secret_vo.provider,
             'service_account_id': secret_vo.service_account_id,
             'project_id': secret_vo.project_id,
             'domain_id': secret_vo.domain_id,
-            'created_at': change_timestamp_type(secret_vo.created_at)
+            'created_at': utils.datetime_to_iso8601(secret_vo.created_at)
         })
 
         if getattr(secret_vo, 'secret_groups', None) is not None:
