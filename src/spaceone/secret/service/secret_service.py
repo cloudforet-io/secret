@@ -34,7 +34,7 @@ class SecretService(BaseService):
                 'name': 'str',
                 'data': 'dict',
                 'secret_type': 'str',
-                'tags': 'list',
+                'tags': 'dict',
                 'schema': 'str',
                 'encrypted': 'bool',
                 'encrypt_options': 'dict',
@@ -77,7 +77,7 @@ class SecretService(BaseService):
             params (dict): {
                 'secret_id': 'str',
                 'name': 'str' ,
-                'tags': 'list',
+                'tags': 'dict',
                 'project_id': 'str',
                 'release_project': 'bool',
                 'domain_id': 'str'

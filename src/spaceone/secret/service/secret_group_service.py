@@ -27,7 +27,7 @@ class SecretGroupService(BaseService):
         Args:
             params (dict): {
                 'name': 'str',
-                'tags': 'list',
+                'tags': 'dict',
                 'domain_id': 'str'
             }
 
@@ -49,7 +49,7 @@ class SecretGroupService(BaseService):
             params (dict): {
                 'secret_group_id' : 'str',
                 'name': 'str',
-                'tags': 'list',
+                'tags': 'dict',
                 'domain_id': 'str'
             }
 
