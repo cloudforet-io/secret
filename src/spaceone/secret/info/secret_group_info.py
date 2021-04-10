@@ -1,6 +1,5 @@
 import logging
 import functools
-from spaceone.api.core.v1 import tag_pb2
 from spaceone.api.secret.v1 import secret_group_pb2
 from spaceone.core.pygrpc.message_type import *
 from spaceone.core import utils
