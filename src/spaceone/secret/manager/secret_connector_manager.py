@@ -15,17 +15,15 @@ class SecretConnectorManager(BaseManager):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         connector = config.get_global('CONNECTORS')
-        aws_config = connector.get('AWSSecretManagerConnector')
-        vault_config = connector.get('VaultConnector')
-        if aws_config:
+        backend = config.get_global('BACKEND','AWSSecretManagerConnector')
+        if backend == 'AWSSecretManagerConnector':
             _LOGGER.debug(f'[SecretConnectorManager] Create AWSSecretManagerConnector')
             self.secret_conn: AWSSecretManagerConnector = self.locator.get_connector('AWSSecretManagerConnector')
-        elif vault_config:
+        elif backend == 'VaultConnector':
             _LOGGER.debug(f'[SecretConnectorManager] Create VaultConnector')
-            _LOGGER.warning(f'[SecretConnectorManager] VaultConnector is for Development Use')
-            self.secret_conn: AWSSecretManagerConnector = self.locator.get_connector('VaultConnector')
+            self.secret_conn: VaultConnector = self.locator.get_connector('VaultConnector')
         else:
-            _LOGGER.error('Unsupported Connector')
+            _LOGGER.error(f'Unsupported Connector: {backend}')
 
     def create_secret(self, secret_id, data):
         def _rollback(secret_id):
