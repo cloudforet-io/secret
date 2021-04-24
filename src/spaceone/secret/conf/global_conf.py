@@ -21,6 +21,7 @@ CACHES = {
 
 HANDLERS = {}
 
+BACKEND = ""
 CONNECTORS = {
     'IdentityConnector': {},
     'AWSSecretManagerConnector': {},
