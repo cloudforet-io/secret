@@ -6,6 +6,8 @@ from spaceone.core import config
 from spaceone.core.manager import BaseManager
 from spaceone.secret.connector.aws_secret_manager_connector import AWSSecretManagerConnector
 from spaceone.secret.connector.vault_connector import VaultConnector
+from spaceone.secret.connector.consul_connector import ConsulConnector
+from spaceone.secret.error import *
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -16,14 +18,12 @@ class SecretConnectorManager(BaseManager):
         super().__init__(*args, **kwargs)
         connector = config.get_global('CONNECTORS')
         backend = config.get_global('BACKEND','AWSSecretManagerConnector')
-        if backend == 'AWSSecretManagerConnector':
-            _LOGGER.debug(f'[SecretConnectorManager] Create AWSSecretManagerConnector')
-            self.secret_conn: AWSSecretManagerConnector = self.locator.get_connector('AWSSecretManagerConnector')
-        elif backend == 'VaultConnector':
-            _LOGGER.debug(f'[SecretConnectorManager] Create VaultConnector')
-            self.secret_conn: VaultConnector = self.locator.get_connector('VaultConnector')
-        else:
-            _LOGGER.error(f'Unsupported Connector: {backend}')
+        try:
+            _LOGGER.debug(f'[SecretConnectorManager] Create {backend}')
+            self.secret_conn = self.locator.get_connector(backend)
+        except Exception as e:
+            _LOGGER.error(f'[SecretConnectorManager] not defined backend {backend}')
+            raise ERROR_DEFINE_SECRET_BACKEND(backend=backend)
 
     def create_secret(self, secret_id, data):
         def _rollback(secret_id):

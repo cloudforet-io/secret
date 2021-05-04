@@ -16,7 +16,7 @@
 
 from setuptools import setup, find_packages
 
-with open('VERSION', 'r') as f: 
+with open('VERSION', 'r') as f:
     VERSION = f.read().strip()
     f.close()
 
@@ -37,7 +37,8 @@ setup(
         'mongomock',
         'redis',
         'boto3',
-        'hvac'
+        'hvac',
+        'python-consul'
     ],
     zip_safe=False,
 )
