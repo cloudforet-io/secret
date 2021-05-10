@@ -2,11 +2,11 @@
 # DEFAULT 
 ###############################
 enabled: true
-grpc: true
 developer: false
+grpc: true
 scheduler: false
 worker: false
-grpc: false
+rest: false
 name: secret
 replicas: 1
 image:
@@ -20,12 +20,19 @@ database: {}
 # Overwrite application config
 #application: {}
 application:
+    BACKEND: AWSSecretManagerConnector
     CONNECTORS:
         AWSSecretManagerConnector:
             aws_access_key_id: my_key
             aws_secret_access_key: my_secret_key
             reigon_name: default_region
 
+#    BACKEND: ConsulConnector
+#    CONNECTORS:
+#      ConsulConnector:
+#          host: spaceone-consul-server
+#          port: 8500
+          
 # Overwrite scheduler config
 application_scheduler: {}
 # Overwrite worker config
@@ -42,18 +49,18 @@ application_worker: {}
 # Local volumes
 ##########################
 volumes:
-    - name: timezone
-      hostPath:
-          path: /usr/share/zoneinfo/Asia/Seoul
-    - name: log-volume
-      emptyDir: {}
+  - name: timezone
+    hostPath:
+        path: /usr/share/zoneinfo/Asia/Seoul
+  - name: log-volume
+    emptyDir: {}
 
 #######################
 # global variable
 #######################
 global:
-    shared: {}
-    sidecar: []
+  shared: {}
+  sidecar: []
 #        - name: mongos
 #          image: mongo:4.4.0-bionic
 #          command: [ 'mongos', '--config', '/mnt/mongos.yml', '--bind_ip_all' ]
