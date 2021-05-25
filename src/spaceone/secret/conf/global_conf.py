@@ -26,12 +26,12 @@ CONNECTORS = {
     'IdentityConnector': {},
     'AWSSecretManagerConnector': {},
     'VaultConnector': {
-#        'url': 'http://vault:8200',
-#        'token': 'myroot'
+       # 'url': 'http://vault:8200',
+       # 'token': 'myroot'
     },
     'ConsulConnector': {
-        'host' : 'consul',
-        'port' : 8500
+        'host': 'consul',
+        'port': 8500
     }
 }
 
