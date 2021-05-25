@@ -15,7 +15,7 @@ CACHES = {
     'local': {
         'backend': 'spaceone.core.cache.local_cache.LocalCache',
         'max_size': 128,
-        'ttl': 86400
+        'ttl': 300
     }
 }
 
@@ -26,12 +26,12 @@ CONNECTORS = {
     'IdentityConnector': {},
     'AWSSecretManagerConnector': {},
     'VaultConnector': {
-#        'url': 'http://vault:8200',
-#        'token': 'myroot'
+       # 'url': 'http://vault:8200',
+       # 'token': 'myroot'
     },
     'ConsulConnector': {
-        'host' : 'consul',
-        'port' : 8500
+        'host': 'consul',
+        'port': 8500
     }
 }
 
