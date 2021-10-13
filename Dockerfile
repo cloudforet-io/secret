@@ -24,6 +24,9 @@ WORKDIR ${SRC_DIR}
 RUN python3 setup.py install && \
     rm -rf /tmp/*
 
+RUN mkdir -p ${PYTHONPATH} && \
+    touch ${PYTHONPATH}/__init__.py
+
 EXPOSE ${SPACEONE_PORT}
 
 ENTRYPOINT ["spaceone"]
