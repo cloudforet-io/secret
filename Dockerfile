@@ -28,11 +28,11 @@ RUN python3 setup.py install && \
 RUN mkdir -p ${EXTENSION_HANDLER_PATH}
 WORKDIR ${PYTHONPATH}
 RUN touch __init__.py
-RUN cat "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" >> __init__.py
+RUN echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" >> __init__.py
 
 WORKDIR ${PYTHONPATH}/extension
 RUN touch __init__.py
-RUN cat "name = 'extension'" >> __init__.py
+RUN echo "name = 'extension'" >> __init__.py
 
 WORKDIR ${PYTHONPATH}/extension/handler
 RUN touch __init__.py
