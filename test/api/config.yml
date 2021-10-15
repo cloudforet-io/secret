@@ -1,0 +1,13 @@
+SERVICE: secret
+DATABASES:
+  default:
+    db: secret
+    host: localhost
+    port: 27017
+    username: secret
+    password: secret
+ENDPOINTS:
+  secret:
+    v1: localhost:50051
+  identity:
+    v1: localhost:50052

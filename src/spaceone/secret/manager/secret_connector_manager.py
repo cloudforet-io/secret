@@ -17,7 +17,7 @@ class SecretConnectorManager(BaseManager):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         connector = config.get_global('CONNECTORS')
-        backend = config.get_global('BACKEND','AWSSecretManagerConnector')
+        backend = config.get_global('BACKEND', 'AWSSecretManagerConnector')
         try:
             _LOGGER.debug(f'[SecretConnectorManager] Create {backend}')
             self.secret_conn = self.locator.get_connector(backend)
