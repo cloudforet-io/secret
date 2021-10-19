@@ -41,4 +41,4 @@ RUN echo "name = '${EXTENSION}'" >> __init__.py
 EXPOSE ${SPACEONE_PORT}
 
 ENTRYPOINT ["spaceone"]
-CMD ["grpc", "spaceone.secret"]
+CMD ["grpc", "spaceone.secret", "-m", "/opt"]
