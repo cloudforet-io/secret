@@ -30,7 +30,6 @@ spec:
       containers:
         - name: {{ .Values.name }}
           image: {{ .Values.image.name }}:{{ .Values.image.version }}
-          command: ['spaceone', 'grpc', 'spaceone.{{ .Values.name }}', '-m', '/opt' ]
           imagePullPolicy: {{ .Values.imagePullPolicy }}
           ports:
             - containerPort: 50051
