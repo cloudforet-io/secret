@@ -31,7 +31,7 @@ class Secret(MongoModel):
             'name',
             'tags',
             'encrypted',
-            'encrypted_options',
+            'encrypt_options',
             'project_id'
         ],
         'minimal_fields': [
