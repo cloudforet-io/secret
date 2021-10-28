@@ -149,10 +149,6 @@ class SecretService(BaseService):
         Returns:
             secret_data (dict)
         """
-        print("#####")
-        print(params)
-        print("#####")
-
         domain_id = params['domain_id']
         secret_id = params['secret_id']
         data = params['data']
