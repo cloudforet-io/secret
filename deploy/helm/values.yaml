@@ -20,6 +20,15 @@ database: {}
 # Overwrite application config
 #application: {}
 application:
+    HANDLERS:
+      mutation:
+        - backend: spaceone.extension.secret_mutation_handler.SecretMutationHandler
+          SALT: salt_key
+          ENCRYPT_ALGORITHM: SPACEONE_DEFAULT
+          aws_access_key_id: aws_access_key_id
+          aws_secret_access_key: aws_secret_access_key
+          region_name: ap-northeast-2
+          kms_key_id: kms_key_id
     BACKEND: AWSSecretManagerConnector
     CONNECTORS:
         AWSSecretManagerConnector:
@@ -54,6 +63,9 @@ volumes:
         path: /usr/share/zoneinfo/Asia/Seoul
   - name: log-volume
     emptyDir: {}
+  - name: secret-mutation-handler
+    configMap:
+      name: secret-mutation-handler
 
 #######################
 # global variable
@@ -104,7 +116,11 @@ service:
 # volumeMount per deployment
 ################################
 volumeMounts:
-    application_grpc: []
+    application_grpc: 
+      - name: secret-mutation-handler
+        mountPath: /opt/spaceone/extension/secret_mutation_handler.py
+        subPath: secret_mutation_handler.py
+        readOnly: true
     application_rest: []
     application_scheduler: []
     application_worker: []
