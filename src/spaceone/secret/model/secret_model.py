@@ -30,6 +30,7 @@ class Secret(MongoModel):
         'updatable_fields': [
             'name',
             'tags',
+            'schema',
             'encrypted',
             'encrypt_options',
             'project_id'

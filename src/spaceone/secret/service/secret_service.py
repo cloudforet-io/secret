@@ -141,6 +141,7 @@ class SecretService(BaseService):
             params (dict): {
                 'secret_id': 'str',
                 'data': 'dict',
+                'schema': 'str',
                 'encrypted': 'bool',
                 'encrypt_options': 'dict',
                 'domain_id': 'str'
