@@ -42,6 +42,9 @@ LOG = {
             'rules': {
                 'Secret.create': [
                     'data'
+                ],
+                'Secret.update_data': [
+                    'data'
                 ]
             }
         }
