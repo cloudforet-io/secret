@@ -48,7 +48,7 @@ class Secret(MongoModel):
             'name'
         ],
         'indexes': [
-            'secret_id',
+            # 'secret_id',
             'secret_type',
             'schema',
             'provider',
