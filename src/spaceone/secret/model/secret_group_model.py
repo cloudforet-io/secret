@@ -33,7 +33,7 @@ class SecretGroup(MongoModel):
             'name'
         ],
         'indexes': [
-            'secret_group_id',
+            # 'secret_group_id',
             'domain_id',
             ('tags.key', 'tags.value')
         ]
