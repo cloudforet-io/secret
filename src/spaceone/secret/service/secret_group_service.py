@@ -35,9 +35,6 @@ class SecretGroupService(BaseService):
             secret_group_vo
         """
 
-        if 'tags' in params:
-            params['tags'] = utils.dict_to_tags(params['tags'])
-
         return self.secret_group_mgr.create_secret_group(params)
 
     @transaction(append_meta={'authorization.scope': 'DOMAIN'})
@@ -59,9 +56,6 @@ class SecretGroupService(BaseService):
 
         secret_group_vo = self.secret_group_mgr.get_secret_group(params['secret_group_id'],
                                                                  params['domain_id'])
-
-        if 'tags' in params:
-            params['tags'] = utils.dict_to_tags(params['tags'])
 
         return self.secret_group_mgr.update_secret_group_by_vo(params, secret_group_vo)
 
@@ -162,7 +156,6 @@ class SecretGroupService(BaseService):
     @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['domain_id'])
     @append_query_filter(['secret_group_id', 'name', 'secret_id', 'domain_id'])
-    @change_tag_filter('tags')
     @append_keyword_filter(['secret_group_id', 'name'])
     def list(self, params):
         """ List secret groups
@@ -187,7 +180,6 @@ class SecretGroupService(BaseService):
     @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['query', 'domain_id'])
     @append_query_filter(['domain_id'])
-    @change_tag_filter('tags')
     @append_keyword_filter(['secret_group_id', 'name'])
     def stat(self, params):
         """

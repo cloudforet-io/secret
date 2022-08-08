@@ -49,9 +49,6 @@ class SecretService(BaseService):
 
         domain_id = params['domain_id']
 
-        if 'tags' in params:
-            params['tags'] = utils.dict_to_tags(params['tags'])
-
         if 'service_account_id' in params:
             service_account_info = self._get_service_account(params['service_account_id'], domain_id)
             params['provider'] = service_account_info.get('provider')
@@ -93,9 +90,6 @@ class SecretService(BaseService):
         release_project = params.get('release_project', False)
 
         secret_vo = self.secret_mgr.get_secret(secret_id, domain_id)
-
-        if 'tags' in params:
-            params['tags'] = utils.dict_to_tags(params['tags'])
 
         if release_project:
             params['project_id'] = None
@@ -212,7 +206,6 @@ class SecretService(BaseService):
     @check_required(['domain_id'])
     @append_query_filter(['secret_id', 'name', 'secret_type', 'secret_group_id', 'schema', 'provider',
                           'service_account_id', 'domain_id', 'user_projects'])
-    @change_tag_filter('tags')
     @append_keyword_filter(['secret_id', 'name', 'schema', 'provider'])
     def list(self, params):
         """ List secrets
@@ -249,7 +242,6 @@ class SecretService(BaseService):
     @transaction
     @check_required(['query', 'domain_id'])
     @append_query_filter(['domain_id'])
-    @change_tag_filter('tags')
     @append_keyword_filter(['secret_id', 'name', 'schema', 'provider'])
     def stat(self, params):
         """

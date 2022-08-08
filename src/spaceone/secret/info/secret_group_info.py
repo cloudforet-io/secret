@@ -28,7 +28,7 @@ def SecretGroupInfo(secret_group_vo: SecretGroup, minimal=False):
 
     if minimal is False:
         info.update({
-            'tags': change_struct_type(utils.tags_to_dict(secret_group_vo.tags)),
+            'tags': change_struct_type(secret_group_vo.tags),
             'domain_id': secret_group_vo.domain_id,
             'created_at': utils.datetime_to_iso8601(secret_group_vo.created_at)
         })

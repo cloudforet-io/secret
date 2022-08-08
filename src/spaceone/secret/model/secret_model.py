@@ -7,16 +7,11 @@ from spaceone.core.model.mongo_model import MongoModel
 _LOGGER = logging.getLogger(__name__)
 
 
-class SecretTag(EmbeddedDocument):
-    key = StringField(max_length=255)
-    value = StringField(max_length=255)
-
-
 class Secret(MongoModel):
     secret_id = StringField(max_length=40, generate_id='secret', unique=True)
     name = StringField(max_length=255, unique_with='domain_id')
     secret_type = StringField(max_length=40, choices=('CREDENTIALS',))
-    tags = ListField(EmbeddedDocumentField(SecretTag))
+    tags = DictField()
     schema = StringField(max_length=40, null=True, default=None)
     provider = StringField(max_length=40, null=True, default=None)
     encrypted = BooleanField(default=False)
@@ -56,7 +51,6 @@ class Secret(MongoModel):
             'service_account_id',
             'project_id',
             'domain_id',
-            ('tags.key', 'tags.value')
         ]
     }
 
