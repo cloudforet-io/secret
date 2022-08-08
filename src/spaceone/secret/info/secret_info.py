@@ -29,7 +29,7 @@ def SecretInfo(secret_vo: Secret, minimal=False):
 
     if minimal is False:
         info.update({
-            'tags': change_struct_type(utils.tags_to_dict(secret_vo.tags)),
+            'tags': change_struct_type(secret_vo.tags),
             'schema': secret_vo.schema,
             'provider': secret_vo.provider,
             'service_account_id': secret_vo.service_account_id,

@@ -1,16 +1,7 @@
 import factory
 
 from spaceone.core import utils
-from spaceone.secret.model.secret_model import Secret, SecretTag
-
-
-class SecretTagFactory(factory.mongoengine.MongoEngineFactory):
-
-    class Meta:
-        model = SecretTag
-
-    key = utils.random_string()
-    value = utils.random_string()
+from spaceone.secret.model.secret_model import Secret
 
 
 class SecretFactory(factory.mongoengine.MongoEngineFactory):

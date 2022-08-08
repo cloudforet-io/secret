@@ -8,15 +8,10 @@ from spaceone.secret.model.secret_model import Secret
 _LOGGER = logging.getLogger(__name__)
 
 
-class SecretGroupTag(EmbeddedDocument):
-    key = StringField(max_length=255)
-    value = StringField(max_length=255)
-
-
 class SecretGroup(MongoModel):
     secret_group_id = StringField(max_length=40, generate_id='secret-grp', unique=True)
     name = StringField(max_length=255, unique_with='domain_id')
-    tags = ListField(EmbeddedDocumentField(SecretGroupTag))
+    tags = DictField()
     domain_id = StringField(max_length=255)
     created_at = DateTimeField(auto_now_add=True)
 
@@ -35,7 +30,6 @@ class SecretGroup(MongoModel):
         'indexes': [
             # 'secret_group_id',
             'domain_id',
-            ('tags.key', 'tags.value')
         ]
     }
 

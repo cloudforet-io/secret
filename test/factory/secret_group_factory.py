@@ -1,20 +1,10 @@
 import factory
 
 from spaceone.core import utils
-from spaceone.secret.model.secret_group_model import SecretGroup, SecretGroupTag
-
-
-class SecretGroupTagFactory(factory.mongoengine.MongoEngineFactory):
-
-    class Meta:
-        model = SecretGroupTag
-
-    key = utils.random_string()
-    value = utils.random_string()
+from spaceone.secret.model.secret_group_model import SecretGroup
 
 
 class SecretGroupFactory(factory.mongoengine.MongoEngineFactory):
-
     class Meta:
         model = SecretGroup
 
