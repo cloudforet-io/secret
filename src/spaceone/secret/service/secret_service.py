@@ -199,10 +199,7 @@ class SecretService(BaseService):
 
         return self.secret_mgr.get_secret(params['secret_id'], params['domain_id'], params.get('only'))
 
-    @transaction(append_meta={
-        'authorization.scope': 'PROJECT',
-        'mutation.append_parameter': {'user_projects': 'authorization.projects'}
-    })
+    @transaction(append_meta={'authorization.scope': 'PROJECT'})
     @check_required(['domain_id'])
     @append_query_filter(['secret_id', 'name', 'secret_type', 'secret_group_id', 'schema', 'provider',
                           'service_account_id', 'domain_id', 'user_projects'])
@@ -239,7 +236,7 @@ class SecretService(BaseService):
 
         return secret_vos, total_count
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'PROJECT'})
     @check_required(['query', 'domain_id'])
     @append_query_filter(['domain_id'])
     @append_keyword_filter(['secret_id', 'name', 'schema', 'provider'])
@@ -248,7 +245,8 @@ class SecretService(BaseService):
         Args:
             params (dict): {
                 'domain_id': 'str',
-                'query': 'dict (spaceone.api.core.v1.StatisticsQuery)'
+                'query': 'dict (spaceone.api.core.v1.StatisticsQuery)',
+                'user_projects': 'list', // from meta
             }
 
         Returns:
