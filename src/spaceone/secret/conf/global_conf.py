@@ -45,6 +45,12 @@ LOG = {
                 ],
                 'Secret.update_data': [
                     'data'
+                ],
+                'TrustedSecret.create': [
+                    'data'
+                ],
+                'TrustedSecret.update_data': [
+                    'data'
                 ]
             }
         }

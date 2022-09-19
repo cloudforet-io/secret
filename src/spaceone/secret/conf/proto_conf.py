@@ -1,4 +1,4 @@
 PROTO = {
     'spaceone.secret.api.v1.secret': ['Secret'],
-    'spaceone.secret.api.v1.secret_group': ['SecretGroup']
+    'spaceone.secret.api.v1.trusted_secret': ['TrustedSecret']
 }
