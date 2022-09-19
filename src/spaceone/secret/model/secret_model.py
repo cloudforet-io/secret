@@ -18,6 +18,7 @@ class Secret(MongoModel):
     encrypt_options = DictField()
     service_account_id = StringField(max_length=40, null=True, default=None)
     project_id = StringField(max_length=40, null=True, default=None)
+    trusted_secret_id = StringField(max_length=40, null=True, default=None)
     domain_id = StringField(max_length=255)
     created_at = DateTimeField(auto_now_add=True)
 

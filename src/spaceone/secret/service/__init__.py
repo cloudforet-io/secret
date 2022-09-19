@@ -1,2 +1,3 @@
 from spaceone.secret.service.secret_service import SecretService
 from spaceone.secret.service.secret_group_service import SecretGroupService
+from spaceone.secret.service.trusted_secret_service import TrustedSecretService

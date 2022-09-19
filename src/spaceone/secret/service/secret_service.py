@@ -1,8 +1,6 @@
 import logging
 
 from spaceone.core.service import *
-from spaceone.core import utils
-from spaceone.secret.error.custom import *
 from spaceone.secret.manager.identity_manager import IdentityManager
 from spaceone.secret.manager.secret_manager import SecretManager
 from spaceone.secret.model.secret_model import Secret
@@ -53,7 +51,6 @@ class SecretService(BaseService):
             service_account_info = self._get_service_account(params['service_account_id'], domain_id)
             params['provider'] = service_account_info.get('provider')
             params['project_id'] = service_account_info.get('project_info', {}).get('project_id')
-
         else:
             if 'project_id' in params:
                 self._check_project(params['project_id'], domain_id)
