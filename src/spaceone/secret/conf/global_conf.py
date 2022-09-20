@@ -22,7 +22,12 @@ HANDLERS = {}
 
 BACKEND = ""
 CONNECTORS = {
-    'IdentityConnector': {},
+    'SpaceConnector': {
+        'backend': 'spaceone.core.connector.space_connector.SpaceConnector',
+        'endpoints': {
+            'identity': 'grpc://identity:50051'
+        }
+    },
     'AWSSecretManagerConnector': {},
     'VaultConnector': {
        # 'url': 'http://vault:8200',
