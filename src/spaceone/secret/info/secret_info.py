@@ -33,6 +33,7 @@ def SecretInfo(secret_vo: Secret, minimal=False):
             'schema': secret_vo.schema,
             'provider': secret_vo.provider,
             'service_account_id': secret_vo.service_account_id,
+            'trusted_secret_id': secret_vo.trusted_secret_id,
             'project_id': secret_vo.project_id,
             'domain_id': secret_vo.domain_id,
             'created_at': utils.datetime_to_iso8601(secret_vo.created_at)
