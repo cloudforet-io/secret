@@ -24,3 +24,6 @@ class ERROR_NOT_EXIST_TRUST_SERVICE_ACCOUNT(ERROR_BASE):
 class ERROR_EXIST_RELATED_SECRET(ERROR_BASE):
     _message = 'Related Secret is exist. (secret_id={secret_id})'
 
+
+class ERROR_DIFF_SECRET_AND_TRUSTED_SECRET_ENCRYPTED(ERROR_BASE):
+    _message = 'The encryption algorithm of Secret and Trusted Secret are different.'

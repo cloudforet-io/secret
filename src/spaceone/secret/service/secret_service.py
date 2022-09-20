@@ -1,9 +1,11 @@
 import logging
 
 from spaceone.core.service import *
+from spaceone.secret.error.custom import *
 from spaceone.secret.manager.identity_manager import IdentityManager
 from spaceone.secret.manager.secret_manager import SecretManager
 from spaceone.secret.model.secret_model import Secret
+from spaceone.secret.manager.trusted_secret_manager import TrustedSecretManager
 from spaceone.secret.manager.secret_connector_manager import SecretConnectorManager
 
 _LOGGER = logging.getLogger(__name__)
@@ -166,11 +168,24 @@ class SecretService(BaseService):
             secret_data (dict)
         """
 
-        domain_id = params['domain_id']
         secret_id = params['secret_id']
+        domain_id = params['domain_id']
+        trusted_secret_data = None
 
         secret_vo: Secret = self.secret_mgr.get_secret(secret_id, domain_id)
+
+        if secret_vo.trusted_secret_id:
+            trusted_secret_mgr: TrustedSecretManager = self.locator.get_manager('TrustedSecretManager')
+            trusted_secret_vo = trusted_secret_mgr.get_trusted_secret(trusted_secret_id=secret_vo.trusted_secret_id,
+                                                                      domain_id=domain_id)
+
+            self._check_validation_trusted_secret(secret_vo, trusted_secret_vo)
+            trusted_secret_data = self._get_secret_data(trusted_secret_vo.trusted_secret_id)
+
         secret_data = self._get_secret_data(secret_id)
+
+        if trusted_secret_data:
+            secret_data['trusted_encrypted_data'] = trusted_secret_data['encrypted_data']
 
         return {
             'encrypted': secret_vo.encrypted,
@@ -265,5 +280,25 @@ class SecretService(BaseService):
     def _check_project(self, project_id, domain_id):
         identity_mgr: IdentityManager = self.locator.get_manager('IdentityManager')
         identity_mgr.get_project(project_id, domain_id)
+
+        return True
+
+    @staticmethod
+    def _check_validation_trusted_secret(secret_vo, trusted_secret_vo):
+        if secret_vo.encrypted != trusted_secret_vo.encrypted:
+            raise ERROR_DIFF_SECRET_AND_TRUSTED_SECRET_ENCRYPTED()
+
+        if secret_vo.encrypted and trusted_secret_vo.encrypted:
+            secret_encrypt_options = secret_vo.encrypt_options
+            trusted_secret_encrypt_options = trusted_secret_vo.encrypt_options
+
+            secret_encrypt_algorithm = secret_encrypt_options.get('encrypt_algorithm')
+            trusted_secret_encrypt_algorithm = trusted_secret_encrypt_options.get('encrypt_algorithm')
+
+            if secret_encrypt_algorithm and trusted_secret_encrypt_algorithm and \
+                    secret_encrypt_algorithm == trusted_secret_encrypt_algorithm:
+                return True
+            else:
+                raise ERROR_DIFF_SECRET_AND_TRUSTED_SECRET_ENCRYPTED()
 
         return True
