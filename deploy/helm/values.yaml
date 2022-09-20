@@ -25,7 +25,7 @@ application:
         AWSSecretManagerConnector:
             aws_access_key_id: my_key
             aws_secret_access_key: my_secret_key
-            reigon_name: default_region
+            region_name: default_region
 
 #    BACKEND: ConsulConnector
 #    CONNECTORS:
