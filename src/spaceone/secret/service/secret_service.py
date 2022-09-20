@@ -170,9 +170,10 @@ class SecretService(BaseService):
 
         secret_id = params['secret_id']
         domain_id = params['domain_id']
-        trusted_secret_data = None
 
         secret_vo: Secret = self.secret_mgr.get_secret(secret_id, domain_id)
+        secret_data = self._get_secret_data(secret_id)
+        encrypt_options = secret_vo.encrypt_options
 
         if secret_vo.trusted_secret_id:
             trusted_secret_mgr: TrustedSecretManager = self.locator.get_manager('TrustedSecretManager')
@@ -180,16 +181,20 @@ class SecretService(BaseService):
                                                                       domain_id=domain_id)
 
             self._check_validation_trusted_secret(secret_vo, trusted_secret_vo)
+
             trusted_secret_data = self._get_secret_data(trusted_secret_vo.trusted_secret_id)
 
-        secret_data = self._get_secret_data(secret_id)
+            trusted_secret_encrypt_options = trusted_secret_vo.encrypt_options
 
-        if trusted_secret_data:
             secret_data['trusted_encrypted_data'] = trusted_secret_data['encrypted_data']
+
+            encrypt_options.update({
+                'trusted_encrypted_data_key': trusted_secret_encrypt_options.get('encrypted_data_key')
+            })
 
         return {
             'encrypted': secret_vo.encrypted,
-            'encrypt_options': secret_vo.encrypt_options,
+            'encrypt_options': encrypt_options,
             'data': secret_data
         }
 
