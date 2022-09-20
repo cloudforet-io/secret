@@ -213,8 +213,8 @@ class SecretService(BaseService):
 
     @transaction(append_meta={'authorization.scope': 'PROJECT'})
     @check_required(['domain_id'])
-    @append_query_filter(['secret_id', 'name', 'secret_type', 'secret_group_id', 'schema', 'provider',
-                          'service_account_id', 'domain_id', 'user_projects'])
+    @append_query_filter(['secret_id', 'name', 'secret_type', 'schema', 'provider',
+                          'service_account_id', 'trusted_secret_id', 'domain_id', 'user_projects'])
     @append_keyword_filter(['secret_id', 'name', 'schema', 'provider'])
     def list(self, params):
         """ List secrets
@@ -224,11 +224,10 @@ class SecretService(BaseService):
                 'secret_id': 'str',
                 'name': 'str',
                 'secret_type': 'str',
-                'secret_group_id': 'str',
                 'schema': 'str',
                 'provider': 'str',
                 'service_account_id': 'str',
-                'include_secret_group': 'bool',
+                'trusted_secret_id': 'str',
                 'domain_id': 'str',
                 'query': 'dict (spaceone.api.core.v1.Query)',
                 'user_projects': 'list', // from meta
