@@ -183,14 +183,18 @@ class SecretService(BaseService):
             self._check_validation_trusted_secret(secret_vo, trusted_secret_vo)
 
             trusted_secret_data = self._get_secret_data(trusted_secret_vo.trusted_secret_id)
-
             trusted_secret_encrypt_options = trusted_secret_vo.encrypt_options
 
-            secret_data['trusted_encrypted_data'] = trusted_secret_data['encrypted_data']
+            if secret_vo.encrypted and trusted_secret_vo.encrypted:
+                secret_data['trusted_encrypted_data'] = trusted_secret_data['encrypted_data']
 
-            encrypt_options.update({
-                'trusted_encrypted_data_key': trusted_secret_encrypt_options.get('encrypted_data_key')
-            })
+                encrypt_options.update({
+                    'trusted_encrypted_data_key': trusted_secret_encrypt_options.get('encrypted_data_key')
+                })
+            elif secret_vo.encrypted is False and trusted_secret_vo.encrypted is False:
+                # Merge secret data & trusted secret data
+                trusted_secret_data.update(secret_data)
+                secret_data = trusted_secret_data
 
         return {
             'encrypted': secret_vo.encrypted,
