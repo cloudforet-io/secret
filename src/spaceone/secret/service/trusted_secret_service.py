@@ -212,7 +212,7 @@ class TrustedSecretService(BaseService):
 
         _LOGGER.debug(f'[_check_service_accounts] list_service_accounts response: {response}')
 
-        if response['total_count'] == 0:
+        if response.get('total_count', 0) == 0:
             raise ERROR_NOT_EXIST_TRUST_SERVICE_ACCOUNT()
         else:
             return response['results'][0]
