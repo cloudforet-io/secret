@@ -204,7 +204,7 @@ class TrustedSecretService(BaseService):
         query = {
             'filter': [
                 {'k': 'service_account_id', 'v': params['service_account_id'], 'o': 'eq'},
-                {'k': 'service_account_type', 'v': 'TRUST', 'o': 'eq'},
+                {'k': 'service_account_type', 'v': 'TRUSTED', 'o': 'eq'},
             ]
         }
         identity_mgr: IdentityManager = self.locator.get_manager('IdentityManager')
