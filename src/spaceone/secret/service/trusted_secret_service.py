@@ -210,6 +210,8 @@ class TrustedSecretService(BaseService):
         identity_mgr: IdentityManager = self.locator.get_manager('IdentityManager')
         response = identity_mgr.list_service_accounts(query, domain_id)
 
+        _LOGGER.debug(f'[_check_service_accounts] list_service_accounts response: {response}')
+
         if response['total_count'] == 0:
             raise ERROR_NOT_EXIST_TRUST_SERVICE_ACCOUNT()
         else:
