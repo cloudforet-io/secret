@@ -40,6 +40,7 @@ class SecretService(BaseService):
                 'encrypt_options': 'dict',
                 'service_account_id': 'str',
                 'project_id': 'str',
+                'trusted_secret_id': 'str',
                 'domain_id': 'str
             }
 
@@ -56,6 +57,10 @@ class SecretService(BaseService):
         else:
             if 'project_id' in params:
                 self._check_project(params['project_id'], domain_id)
+
+        if 'trusted_secret_id' in params:
+            trusted_secret_mgr = self.locator.get_manager('TrustedSecretManager')
+            trusted_secret_mgr.get_trusted_secret(params['trusted_secret_id'], domain_id)
 
         secret_vo = self.secret_mgr.create_secret(params)
 
