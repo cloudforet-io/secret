@@ -6,3 +6,4 @@ redis
 boto3
 hvac
 python-consul
+etcd3

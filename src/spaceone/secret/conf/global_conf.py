@@ -36,6 +36,10 @@ CONNECTORS = {
     'ConsulConnector': {
         'host': 'consul',
         'port': 8500
+    },
+    'EtcdConnector': {
+        'host': 'localhost',
+        'port': 2379
     }
 }
 

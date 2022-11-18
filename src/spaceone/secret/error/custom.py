@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from spaceone.core.error import *
 
 class ERROR_DEFINE_SECRET_BACKEND(ERROR_BASE):
