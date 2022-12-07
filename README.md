@@ -5,6 +5,8 @@ Secret Service supports multiple backend.
 - AWSSecretManager
 - Vault
 - Consul
+- etcd
+- MongoDB
 
 
 # Examples
@@ -44,3 +46,26 @@ spaceone-consul-server   ClusterIP   None             <none>        8500/TCP,830
 ...
 ~~~
 
+## MongoDBConnector
+
+~~~
+
+BACKEND: MongoDBConnector
+CONNECTORS:
+    MongoDBConnector:
+        host: MONGO_HOST
+        port': 27017,
+        username': MONGO_USER,
+        password': MONGO_PASSWD
+~~~
+
+## EtcdConnector
+
+~~~
+
+BACKEND: EtcdConnector
+CONNECTORS:
+    EtcdConnector:
+        host: ETCD_HOST
+        port': 2379
+~~~

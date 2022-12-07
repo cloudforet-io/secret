@@ -40,7 +40,13 @@ CONNECTORS = {
     'EtcdConnector': {
         'host': 'localhost',
         'port': 2379
-    }
+    },
+    'MongoDBConnector': {
+        'host': 'localhost',
+        'port': 27017,
+        'username': '',
+        'password': ''
+    },
 }
 
 ENDPOINTS = {}
