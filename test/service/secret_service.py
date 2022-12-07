@@ -13,6 +13,7 @@ from spaceone.secret.service.secret_service import SecretService
 from spaceone.secret.model.secret_model import Secret
 
 from spaceone.secret.connector.aws_secret_manager_connector import AWSSecretManagerConnector
+from spaceone.secret.connector.mongodb_connector import MongoDBConnector
 
 from spaceone.secret.info.secret_info import *
 from spaceone.secret.info.common_info import StatisticsInfo
@@ -48,8 +49,8 @@ class TestSecretService(unittest.TestCase):
         secret_vos.delete()
 
     @patch.object(MongoModel, 'connect', return_value=None)
-    @patch.object(AWSSecretManagerConnector, '__init__', return_value=None)
-    @patch.object(AWSSecretManagerConnector, 'create_secret', return_value={'secret_id': 'secret-xyz', 'name': 'Secret'})
+    @patch.object(MongoDBConnector, '__init__', return_value=None)
+    @patch.object(MongoDBConnector, 'create_secret', return_value={'secret_id': 'secret-xyz', 'name': 'Secret'})
     def test_create_secret(self, *args):
         name = utils.random_string()
 
