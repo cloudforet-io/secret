@@ -27,6 +27,7 @@ class MongoDBConnector(BaseConnector):
         self.secret_data.update_one(_query, {'$set': {'data': data}})
 
     def get_secret(self, secret_id):
-        secret_data_vo = self.secret_data.find_one({'secret_id': secret_id})
-        return secret_data_vo
+        secret_data_info = self.secret_data.find_one({'secret_id': secret_id})
+        return secret_data_info.get('data', {})
+
 
