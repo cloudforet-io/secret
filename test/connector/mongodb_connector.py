@@ -29,7 +29,7 @@ class TestMongoDBConnector(unittest.TestCase):
 
     def tearDown(self, *args) -> None:
         print('(tearDown) ==> Delete data')
-        # self.test_delete_secret()
+        self.test_delete_secret()
 
     def test_create_secret(self, *args):
         # print(self.secret_id)
@@ -38,7 +38,8 @@ class TestMongoDBConnector(unittest.TestCase):
         self.mongo_connector.create_secret(self.secret_id, data)
 
     def test_update_secret(self, *args):
-        data = {'xxx': 'yyy'}
+        self.test_create_secret()
+        data = {'xxxxxxxx': 'yyyyyyyyyy'}
         self.mongo_connector.update_secret(self.secret_id, data)
 
     def test_delete_secret(self, *args):
@@ -46,8 +47,8 @@ class TestMongoDBConnector(unittest.TestCase):
 
     def test_get_secret(self, *args):
         self.test_create_secret()
-        self.mongo_connector.get_secret(self.secret_id)
-
+        result = self.mongo_connector.get_secret(self.secret_id)
+        print(result)
 
 if __name__ == "__main__":
     unittest.main(testRunner=RichTestRunner)
