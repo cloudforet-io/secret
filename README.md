@@ -58,3 +58,14 @@ CONNECTORS:
         username': MONGO_USER,
         password': MONGO_PASSWD
 ~~~
+
+## EtcdConnector
+
+~~~
+
+BACKEND: EtcdConnector
+CONNECTORS:
+    EtcdConnector:
+        host: ETCD_HOST
+        port': 2379
+~~~
