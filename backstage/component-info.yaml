@@ -1,0 +1,13 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: cloudforet-secret
+  namespace: cloudforet-core
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+    backstage.io/managed-by-origin-location: url:https://github.com/sang-w0o/secret/blob/master/backstage/component-info.yaml
+spec:
+  type: coreService
+  lifecycle: experimental
+  owner: bluese@mz.co.kr
+

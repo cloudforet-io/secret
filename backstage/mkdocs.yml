@@ -1,0 +1,7 @@
+site_name: CloudForetSecretService
+site_description: CloudForet Secret Service
+nav:
+  - About: index.md
+plugins:
+  - techdocs-core
+
