@@ -12,10 +12,11 @@ _LOGGER = logging.getLogger(__name__)
 class ConsulConnector(BaseConnector):
     """ Consul Backend
     """
-    def __init__(self, transaction, config):
-        super().__init__(transaction, config)
 
-        self.config = self._validate_config(config)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.config = self._validate_config(self.config)
 
         # No configuration
         if self.config == {}:
