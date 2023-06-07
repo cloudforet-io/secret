@@ -9,9 +9,9 @@ _LOGGER = logging.getLogger(__name__)
 
 class MongoDBConnector(BaseConnector):
 
-    def __init__(self, transaction, config):
-        super().__init__(transaction, config)
-        client = MongoClient(**config)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        client = MongoClient(**self.config)
         db = client.secret_data
         self.secret_data = db.secret_data
 

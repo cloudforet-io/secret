@@ -3,16 +3,15 @@ import json
 import etcd3
 from spaceone.core.connector import BaseConnector
 
-
 __all__ = ['EtcdConnector']
 _LOGGER = logging.getLogger(__name__)
 
 
 class EtcdConnector(BaseConnector):
 
-    def __init__(self, transaction, config):
-        super().__init__(transaction, config)
-        self.client = etcd3.client(host=config.get('host'), port=config.get('port'))
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.client = etcd3.client(host=self.config.get('host'), port=self.config.get('port'))
 
     @staticmethod
     def _response_value(response):

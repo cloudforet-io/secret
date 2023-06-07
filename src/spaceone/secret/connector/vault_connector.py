@@ -12,11 +12,12 @@ _LOGGER = logging.getLogger(__name__)
 class VaultConnector(BaseConnector):
     """ Vault backend is for develop use
     """
-    def __init__(self, transaction, config):
-        super().__init__(transaction, config)
 
-        vault_url = config.get('url')
-        token = config.get('token')
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        vault_url = self.config.get('url')
+        token = self.config.get('token')
         if vault_url and token:
             self.client = hvac.Client(url=vault_url)
             self.client.token = token

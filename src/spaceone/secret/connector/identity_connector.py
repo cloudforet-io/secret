@@ -7,14 +7,13 @@ from spaceone.core import pygrpc
 from spaceone.core.utils import parse_endpoint
 from spaceone.core.error import *
 
-
 __all__ = ['IdentityConnector']
 _LOGGER = logging.getLogger(__name__)
 
 
 class IdentityConnector(BaseConnector):
-    def __init__(self, transaction, config):
-        super().__init__(transaction, config)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         if 'endpoint' not in self.config:
             raise ERROR_WRONG_CONFIGURATION(key='endpoint')
