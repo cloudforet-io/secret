@@ -18,6 +18,8 @@ _LOGGER = logging.getLogger(__name__)
 @mutation_handler
 @event_handler
 class SecretService(BaseService):
+    resource = "Secret"
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.secret_mgr: SecretManager = self.locator.get_manager("SecretManager")
@@ -347,7 +349,6 @@ class SecretService(BaseService):
         """
 
         query = params.get("query", {})
-        include_secret_group = params.get("include_secret_group", False)
         secret_vos, total_count = self.secret_mgr.list_secrets(query)
 
         return secret_vos, total_count

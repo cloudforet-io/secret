@@ -17,6 +17,8 @@ _LOGGER = logging.getLogger(__name__)
 @mutation_handler
 @event_handler
 class TrustedSecretService(BaseService):
+    resource = "TrustedSecret"
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.trusted_secret_mgr: TrustedSecretManager = self.locator.get_manager(

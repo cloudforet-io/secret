@@ -9,7 +9,7 @@ class TrustedSecret(MongoModel):
     trusted_secret_id = StringField(
         max_length=40, generate_id="trusted-secret", unique=True
     )
-    name = StringField(max_length=255, unique_with="domain_id")
+    name = StringField(max_length=255)
     schema_id = StringField(max_length=40, null=True, default=None)
     provider = StringField(max_length=40, null=True, default=None)
     tags = DictField()
@@ -32,6 +32,7 @@ class TrustedSecret(MongoModel):
         "minimal_fields": ["trusted_secret_id", "name", "schema_id", "provider"],
         "ordering": ["name"],
         "indexes": [
+            "name",
             "schema_id",
             "provider",
             "trusted_account_id",
