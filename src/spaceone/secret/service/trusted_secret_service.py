@@ -156,6 +156,7 @@ class TrustedSecretService(BaseService):
         Args:
             params (dict): {
                 'trusted_secret_id': 'str',
+                'schema_id': 'str',
                 'data': 'dict',
                 'encrypted': 'bool',
                 'encrypt_options': 'dict',

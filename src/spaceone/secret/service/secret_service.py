@@ -181,6 +181,7 @@ class SecretService(BaseService):
         Args:
             params (dict): {
                 'secret_id': 'str',
+                'schema_id': 'str',
                 'data': 'dict',
                 'encrypted': 'bool',
                 'encrypt_options': 'dict',
