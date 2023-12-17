@@ -7,7 +7,7 @@ _LOGGER = logging.getLogger(__name__)
 
 class Secret(MongoModel):
     secret_id = StringField(max_length=40, generate_id="secret", unique=True)
-    name = StringField(max_length=255, unique_with="domain_id")
+    name = StringField(max_length=255)
     schema_id = StringField(max_length=40, null=True, default=None)
     provider = StringField(max_length=40, null=True, default=None)
     tags = DictField()
@@ -36,6 +36,7 @@ class Secret(MongoModel):
         "change_query_keys": {"user_projects": "project_id"},
         "ordering": ["name"],
         "indexes": [
+            "name",
             "schema_id",
             "provider",
             "service_account_id",
