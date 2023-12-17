@@ -1,7 +1,7 @@
 REMOTE_URL:
-- file:///opt/spaceone/secret/config/database.yaml
-- file:///opt/spaceone/secret/config/shared.yaml
-- file:///opt/spaceone/secret/config/application.yaml
+  - file:///opt/spaceone/secret/config/database.yaml
+  - file:///opt/spaceone/secret/config/shared.yaml
+  - file:///opt/spaceone/secret/config/application.yaml
 GLOBAL:
   MAX_WORKERS: 1000
   DATABASES:
@@ -17,7 +17,6 @@ GLOBAL:
       backend: spaceone.core.cache.redis_cache.RedisCache
       host: redis
       port: 6379
-      db: 1
       encoding: utf-8
       socket_timeout: 10
       socket_connect_timeout: 10
@@ -31,27 +30,3 @@ GLOBAL:
       file:
         type: file
         filename: /var/log/spaceone/secret.log
-  HANDLERS:
-    authentication:
-    - backend: spaceone.core.handler.authentication_handler.AuthenticationGRPCHandler
-      uri: grpc://identity:50051/v1/Domain/get_public_key
-    authorization:
-    - backend: spaceone.core.handler.authorization_handler.AuthorizationGRPCHandler
-      uri: grpc://identity:50051/v1/Authorization/verify
-    mutation:
-    - backend: spaceone.secret.handler.encrypt_mutation_handler.EncryptMutationHandler
-      ENCRYPT_ALGORITHM: AES
-      encrypt_key: <your AES key>
-  CONNECTORS:
-    IdentityConnector:
-      endpoint:
-        v1: grpc://identity:50051
-    SecretConnector:
-      endpoint:
-        v1: grpc://secret:50051
-    PluginConnector:
-      endpoint:
-        v1: grpc://plugin:50051
-    RepositoryConnector:
-      endpoint:
-        v1: grpc://repository:50051
