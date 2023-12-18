@@ -35,18 +35,18 @@ class SecretService(BaseService):
 
         Args:
             params (dict): {
-                'name': 'str',
-                'data': 'dict',
+                'name': 'str',                  # required
+                'data': 'dict',                 # required
                 'schema_id': 'str',
                 'tags': 'dict',
                 'encrypted': 'bool',
                 'encrypt_options': 'dict',
                 'trusted_secret_id': 'str',
                 'service_account_id': 'str',
-                'resource_group': 'str',
+                'resource_group': 'str',        # required
                 'project_id': 'str',
-                'workspace_id': 'str',
-                'domain_id': 'str'
+                'workspace_id': 'str',          # inherited from auth
+                'domain_id': 'str'              # inherited from auth (required)
             }
 
         Returns:
@@ -102,13 +102,13 @@ class SecretService(BaseService):
 
         Args:
             params (dict): {
-                'secret_id': 'str',
+                'secret_id': 'str',         # required
                 'name': 'str' ,
                 'tags': 'dict',
                 'project_id': 'str',
-                'workspace_id': 'str',
-                'domain_id': 'str'
-                'user_projects': 'list',
+                'workspace_id': 'str',      # inherited from auth
+                'domain_id': 'str'          # inherited from auth (required)
+                'user_projects': 'list',    # inherited from auth
             }
 
         Returns:
@@ -144,10 +144,10 @@ class SecretService(BaseService):
 
         Args:
             params (dict): {
-                'secret_id': 'str',
-                'workspace_id': 'str',
-                'domain_id': 'str'.
-                'user_projects': 'list',
+                'secret_id': 'str',         # required
+                'workspace_id': 'str',      # inherited from auth
+                'domain_id': 'str'.         # inherited from auth (required)
+                'user_projects': 'list',    # inherited from auth
             }
 
         Returns:
@@ -180,14 +180,14 @@ class SecretService(BaseService):
 
         Args:
             params (dict): {
-                'secret_id': 'str',
+                'secret_id': 'str',             # required
                 'schema_id': 'str',
-                'data': 'dict',
+                'data': 'dict',                 # required
                 'encrypted': 'bool',
                 'encrypt_options': 'dict',
-                'workspace_id': 'str',
-                'domain_id': 'str',
-                'user_projects': 'list',
+                'workspace_id': 'str',          # inherited from auth
+                'domain_id': 'str',             # inherited from auth (required)
+                'user_projects': 'list',        # inherited from auth
             }
 
         Returns:
@@ -216,10 +216,10 @@ class SecretService(BaseService):
 
         Args:
             params (dict): {
-                'secret_id': 'str',
-                'workspace_id': 'str',
-                'domain_id': 'str',
-                'user_projects': 'list',
+                'secret_id': 'str',         # required
+                'workspace_id': 'str',      # inherited from auth
+                'domain_id': 'str',         # inherited from auth (required)
+                'user_projects': 'list',    # inherited from auth
             }
 
         Returns:
@@ -287,10 +287,10 @@ class SecretService(BaseService):
 
         Args:
             params (dict): {
-                'secret_id': 'str',
-                'workspace_id': 'str',
-                'domain_id': 'str',
-                'user_projects': 'list',
+                'secret_id': 'str',         # required
+                'workspace_id': 'str',      # inherited from auth
+                'domain_id': 'str',         # inherited from auth (required)
+                'user_projects': 'list',    # inherited from auth
             }
 
         Returns:
@@ -339,9 +339,9 @@ class SecretService(BaseService):
                 'trusted_secret_id': 'str',
                 'service_account_id': 'str',
                 'project_id': 'str',
-                'workspace_id': 'str',
-                'domain_id': 'str',
-                'user_projects': 'list',
+                'workspace_id': 'str',          # inherited from auth
+                'domain_id': 'str',             # inherited from auth (required)
+                'user_projects': 'list',        # inherited from auth
             }
 
         Returns:
@@ -367,10 +367,10 @@ class SecretService(BaseService):
         """
         Args:
             params (dict): {
-                'query': 'dict (spaceone.api.core.v1.StatisticsQuery)',
-                'workspace_id': 'str',
-                'domain_id': 'str',
-                'user_projects': 'list', // from meta
+                'query': 'dict (spaceone.api.core.v1.StatisticsQuery)', # required
+                'workspace_id': 'str',      # inherited from auth
+                'domain_id': 'str',         # inherited from auth (required)
+                'user_projects': 'list',    # inherited from auth
             }
 
         Returns:
