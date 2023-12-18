@@ -78,6 +78,9 @@ class SecretService(BaseService):
             params["project_id"] = "*"
 
         if "trusted_secret_id" in params:
+            if workspace_id:
+                workspace_id = [workspace_id, "*"]
+
             trusted_secret_mgr = self.locator.get_manager("TrustedSecretManager")
             trusted_secret_mgr.get_trusted_secret(
                 params["trusted_secret_id"], domain_id, workspace_id
