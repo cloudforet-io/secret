@@ -71,7 +71,7 @@ class SecretService(BaseService):
                 project_info = self.identity_mgr.get_project(params["project_id"])
                 params["workspace_id"] = project_info["workspace_id"]
         elif resource_group == "WORKSPACE":
-            self.identity_mgr.get_workspace(params["workspace_id"])
+            self.identity_mgr.check_workspace(workspace_id, domain_id)
             params["project_id"] = "*"
         else:
             params["workspace_id"] = "*"
