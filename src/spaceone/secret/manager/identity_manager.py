@@ -9,10 +9,10 @@ class IdentityManager(BaseManager):
             "SpaceConnector", service="identity"
         )
 
-    def get_workspace(self, workspace_id):
+    def check_workspace(self, workspace_id, domain_id):
         return self.identity_conn.dispatch(
-            "Workspace.get",
-            {"workspace_id": workspace_id},
+            "Workspace.check",
+            {"workspace_id": workspace_id, "domain_id": domain_id},
         )
 
     def get_trusted_account(self, trusted_account_id):
