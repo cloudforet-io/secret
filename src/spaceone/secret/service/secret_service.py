@@ -67,10 +67,15 @@ class SecretService(BaseService):
                 params["provider"] = service_account_info["provider"]
                 params["project_id"] = service_account_info["project_id"]
                 params["workspace_id"] = service_account_info["workspace_id"]
-            else:
+            elif "project_id" in params:
                 project_info = self.identity_mgr.get_project(params["project_id"])
                 params["workspace_id"] = project_info["workspace_id"]
+            else:
+                raise ERROR_REQUIRED_PARAMETER(key="project_id")
         elif resource_group == "WORKSPACE":
+            if workspace_id is None:
+                raise ERROR_REQUIRED_PARAMETER(key="workspace_id")
+
             self.identity_mgr.check_workspace(workspace_id, domain_id)
             params["project_id"] = "*"
         else:
