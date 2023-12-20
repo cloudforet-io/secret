@@ -54,6 +54,9 @@ class TrustedSecretService(BaseService):
 
         # Check permission by resource group
         if params["resource_group"] == "WORKSPACE":
+            if "workspace_id" not in params:
+                raise ERROR_REQUIRED_PARAMETER(key="workspace_id")
+
             self.identity_mgr.check_workspace(
                 params["workspace_id"], params["domain_id"]
             )
