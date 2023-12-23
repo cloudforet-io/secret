@@ -1,4 +1,5 @@
 from spaceone.secret.manager.secret_manager import SecretManager
+from spaceone.secret.manager.user_secret_manager import UserSecretManager
 from spaceone.secret.manager.trusted_secret_manager import TrustedSecretManager
 from spaceone.secret.manager.secret_connector_manager import SecretConnectorManager
 from spaceone.secret.manager.identity_manager import IdentityManager
