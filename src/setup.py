@@ -29,12 +29,8 @@ setup(
     install_requires=[
         'spaceone-core',
         'spaceone-api',
-        'mongoengine',
-        'mongomock',
-        'redis',
-        'boto3',
         'hvac',
-        'python-consul'
+        'etcd3'
     ],
     zip_safe=False,
 )
