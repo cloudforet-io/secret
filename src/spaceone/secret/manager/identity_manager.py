@@ -10,9 +10,11 @@ class IdentityManager(BaseManager):
         )
 
     def check_workspace(self, workspace_id, domain_id):
+        system_token = self.transaction.get_meta("token")
         return self.identity_conn.dispatch(
             "Workspace.check",
             {"workspace_id": workspace_id, "domain_id": domain_id},
+            token=system_token,
         )
 
     def get_trusted_account(self, trusted_account_id):
