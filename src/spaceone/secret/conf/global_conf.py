@@ -70,3 +70,6 @@ LOG = {
         }
     }
 }
+
+# System Token Settings
+TOKEN = ""
