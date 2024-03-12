@@ -33,6 +33,13 @@ class TrustedSecret(BaseAPI, trusted_secret_pb2_grpc.TrustedSecretServicer):
             trusted_secret_service.update_data(params)
             return self.locator.get_info('EmptyInfo')
 
+    def get_data(self, request, context):
+        params, metadata = self.parse_request(request, context)
+
+        with self.locator.get_service('TrustedSecretService', metadata) as trusted_secret_service:
+            trusted_secret_data = trusted_secret_service.get_data(params)
+            return self.locator.get_info('TrustedSecretDataInfo', trusted_secret_data)
+
     def get(self, request, context):
         params, metadata = self.parse_request(request, context)
 
