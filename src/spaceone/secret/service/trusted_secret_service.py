@@ -217,7 +217,7 @@ class TrustedSecretService(BaseService):
             "SecretConnectorManager"
         )
 
-        trusted_secret_data = secret_conn_mgr.get_secret(trusted_account_id)
+        trusted_secret_data = secret_conn_mgr.get_secret(trusted_secret_id)
 
         return {
             "encrypted": trusted_secret_vo.encrypted,
