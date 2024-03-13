@@ -9,6 +9,16 @@ __all__ = ["TrustedSecretInfo", "TrustedSecretsInfo"]
 _LOGGER = logging.getLogger(__name__)
 
 
+def TrustedSecretDataInfo(secret_data):
+    info = {
+        "encrypted": secret_data.get("encrypted", False),
+        "encrypt_options": change_struct_type(secret_data.get("encrypt_options", {})),
+        "data": change_struct_type(secret_data["data"]),
+    }
+
+    return trusted_secret_pb2.TrustedSecretDataInfo(**info)
+
+
 def TrustedSecretInfo(trusted_secret_vo: TrustedSecret, minimal=False):
     info = {
         "trusted_secret_id": trusted_secret_vo.trusted_secret_id,

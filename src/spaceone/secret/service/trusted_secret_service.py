@@ -8,6 +8,7 @@ from spaceone.secret.manager.identity_manager import IdentityManager
 from spaceone.secret.manager.secret_manager import SecretManager
 from spaceone.secret.manager.trusted_secret_manager import TrustedSecretManager
 from spaceone.secret.manager.secret_connector_manager import SecretConnectorManager
+from spaceone.secret.model.trusted_secret_model import TrustedSecret
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -187,6 +188,42 @@ class TrustedSecretService(BaseService):
             "SecretConnectorManager"
         )
         secret_conn_mgr.update_secret(trusted_secret_id, data)
+
+    @transaction(exclude=["authentication", "authorization", "mutation"])
+    @check_required(["trusted_account_id", "domain_id"])
+    def get_data(self, params):
+        """Get user secret data
+
+        Args:
+            params (dict): {
+                'trusted_account_id': 'str',        # required
+                'workspace_id': 'str',              # injected from auth
+                'domain_id': 'str',                 # injected from auth (required)
+            }
+
+        Returns:
+            user_secret_data (dict)
+        """
+
+        trusted_account_id = params["secret_id"]
+        domain_id = params["domain_id"]
+        workspace_id = params.get("workspace_id")
+
+        trusted_secret_vo: TrustedSecret = self.trusted_secret_mgr.get_trusted_secret(
+            trusted_account_id, domain_id, workspace_id
+        )
+
+        secret_conn_mgr: SecretConnectorManager = self.locator.get_manager(
+            "SecretConnectorManager"
+        )
+
+        trusted_secret_data = secret_conn_mgr.get_secret(trusted_account_id)
+
+        return {
+            "encrypted": trusted_secret_vo.encrypted,
+            "encrypt_options": trusted_secret_vo.encrypt_options,
+            "data": trusted_secret_data,
+        }
 
     @transaction(
         permission="secret:TrustedSecret.read",
