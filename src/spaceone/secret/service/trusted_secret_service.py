@@ -190,13 +190,13 @@ class TrustedSecretService(BaseService):
         secret_conn_mgr.update_secret(trusted_secret_id, data)
 
     @transaction(exclude=["authentication", "authorization", "mutation"])
-    @check_required(["trusted_account_id", "domain_id"])
+    @check_required(["trusted_secret_id", "domain_id"])
     def get_data(self, params):
         """Get user secret data
 
         Args:
             params (dict): {
-                'trusted_account_id': 'str',        # required
+                'trusted_secret_id': 'str',        # required
                 'workspace_id': 'str',              # injected from auth
                 'domain_id': 'str',                 # injected from auth (required)
             }
@@ -205,12 +205,12 @@ class TrustedSecretService(BaseService):
             user_secret_data (dict)
         """
 
-        trusted_account_id = params["secret_id"]
+        trusted_secret_id = params["trusted_secret_id"]
         domain_id = params["domain_id"]
         workspace_id = params.get("workspace_id")
 
         trusted_secret_vo: TrustedSecret = self.trusted_secret_mgr.get_trusted_secret(
-            trusted_account_id, domain_id, workspace_id
+            trusted_secret_id, domain_id, workspace_id
         )
 
         secret_conn_mgr: SecretConnectorManager = self.locator.get_manager(
