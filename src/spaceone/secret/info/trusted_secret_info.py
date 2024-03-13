@@ -5,7 +5,7 @@ from spaceone.core.pygrpc.message_type import *
 from spaceone.core import utils
 from spaceone.secret.model.trusted_secret_model import TrustedSecret
 
-__all__ = ["TrustedSecretInfo", "TrustedSecretsInfo"]
+__all__ = ["TrustedSecretInfo", "TrustedSecretsInfo", "TrustedSecretDataInfo"]
 _LOGGER = logging.getLogger(__name__)
 
 
