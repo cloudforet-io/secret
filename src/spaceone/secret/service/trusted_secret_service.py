@@ -213,11 +213,7 @@ class TrustedSecretService(BaseService):
             trusted_secret_id, domain_id, workspace_id
         )
 
-        secret_conn_mgr: SecretConnectorManager = self.locator.get_manager(
-            "SecretConnectorManager"
-        )
-
-        trusted_secret_data = secret_conn_mgr.get_secret(trusted_secret_id)
+        trusted_secret_data = self._get_trusted_secret_data(trusted_secret_id)
 
         return {
             "encrypted": trusted_secret_vo.encrypted,
@@ -326,3 +322,11 @@ class TrustedSecretService(BaseService):
         )
         if secret_vos.count() > 0:
             raise ERROR_EXIST_RELATED_SECRET(secret_id=secret_vos[0].secret_id)
+
+    def _get_trusted_secret_data(self, trusted_secret_id):
+
+        secret_conn_mgr: SecretConnectorManager = self.locator.get_manager(
+            "SecretConnectorManager"
+        )
+
+        return secret_conn_mgr.get_secret(trusted_secret_id)
