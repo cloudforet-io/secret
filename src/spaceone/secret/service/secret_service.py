@@ -23,7 +23,6 @@ class SecretService(BaseService):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.secret_mgr: SecretManager = self.locator.get_manager("SecretManager")
-        self.identity_mgr: IdentityManager = self.locator.get_manager("IdentityManager")
 
     @transaction(
         permission="secret:Secret.write",
@@ -56,19 +55,20 @@ class SecretService(BaseService):
         resource_group = params["resource_group"]
         domain_id = params["domain_id"]
         workspace_id = params.get("workspace_id")
+        identity_mgr: IdentityManager = self.locator.get_manager("IdentityManager")
 
         # Check permission by resource group
         if resource_group == "PROJECT":
             if "service_account_id" in params:
-                service_account_info = self.identity_mgr.get_service_account(
-                    params["service_account_id"]
+                service_account_info = identity_mgr.get_service_account(
+                    params["service_account_id"], domain_id
                 )
 
                 params["provider"] = service_account_info["provider"]
                 params["project_id"] = service_account_info["project_id"]
                 params["workspace_id"] = service_account_info["workspace_id"]
             elif "project_id" in params:
-                project_info = self.identity_mgr.get_project(params["project_id"])
+                project_info = identity_mgr.get_project(params["project_id"])
                 params["workspace_id"] = project_info["workspace_id"]
             else:
                 raise ERROR_REQUIRED_PARAMETER(key="project_id")
@@ -76,7 +76,7 @@ class SecretService(BaseService):
             if workspace_id is None:
                 raise ERROR_REQUIRED_PARAMETER(key="workspace_id")
 
-            self.identity_mgr.check_workspace(workspace_id, domain_id)
+            identity_mgr.check_workspace(workspace_id, domain_id)
             params["project_id"] = "*"
         else:
             params["workspace_id"] = "*"
@@ -134,7 +134,10 @@ class SecretService(BaseService):
 
         if secret_vo.resource_group == "PROJECT":
             if project_id := params.get("project_id"):
-                self.identity_mgr.get_project(project_id)
+                identity_mgr: IdentityManager = self.locator.get_manager(
+                    "IdentityManager"
+                )
+                identity_mgr.get_project(project_id)
             else:
                 raise ERROR_PERMISSION_DENIED()
 
