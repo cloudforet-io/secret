@@ -113,8 +113,13 @@ class UserSecretService(BaseService):
         """
 
         user_secret_id = params["user_secret_id"]
-        user_id = params["user_id"]
         domain_id = params["domain_id"]
+
+        role_type = self.transaction.get_meta("role_type")
+        if role_type == "SYSTEM_TOKEN":
+            user_id = None
+        else:
+            user_id = params["user_id"]
 
         user_secret_vo = self.user_secret_mgr.get_user_secret(
             user_secret_id, domain_id, user_id
