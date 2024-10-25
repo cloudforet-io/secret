@@ -97,7 +97,7 @@ class UserSecretService(BaseService):
         permission="secret:UserSecret.write",
         role_types=["USER"],
     )
-    @check_required(["user_secret_id", "user_id", "domain_id"])
+    @check_required(["user_secret_id", "domain_id"])
     def delete(self, params):
         """Delete user secret
 
