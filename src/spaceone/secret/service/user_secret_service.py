@@ -115,7 +115,7 @@ class UserSecretService(BaseService):
         user_secret_id = params["user_secret_id"]
         domain_id = params["domain_id"]
 
-        role_type = self.transaction.get_meta("role_type")
+        role_type = self.transaction.get_meta("authorization.role_type")
         if role_type == "SYSTEM_TOKEN":
             user_id = None
         else:
