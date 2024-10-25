@@ -39,7 +39,7 @@ class UserSecretManager(BaseManager):
     def delete_user_secret_by_vo(user_secret_vo):
         user_secret_vo.delete()
 
-    def get_user_secret(self, user_secret_id, domain_id, user_id=None):
+    def get_user_secret(self, user_secret_id: str, domain_id: str, user_id: str = None):
         conditions = {
             "user_secret_id": user_secret_id,
             "domain_id": domain_id,
