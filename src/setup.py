@@ -17,7 +17,7 @@ import os
 from setuptools import setup, find_packages
 
 setup(
-    name='spaceone-secret',
+    name='spaceone_secret',
     version=os.environ.get('PACKAGE_VERSION'),
     description='SpaceONE secret service',
     long_description='',
