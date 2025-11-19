@@ -73,6 +73,13 @@ spec:
               subPath: shared-secret.yaml
               readOnly: true
 {{- end }}
+{{- if or .Values.application_grpc_secret (lookup "v1" "Secret" .Release.Namespace (printf "%s-application-grpc-secret" .Values.name)) }}
+            - name: application-secret
+              mountPath: /opt/spaceone/{{ .Values.name }}/config/application-secret.yaml
+              subPath: application-secret.yaml
+              readOnly: true
+{{- end }}
+
 {{- if .Values.volumeMounts.application_grpc }}
 {{- toYaml .Values.volumeMounts.application_grpc | nindent 12 }}
 {{- end }}
@@ -110,6 +117,13 @@ spec:
           secret:
             secretName: shared-secret
 {{- end }}
+{{- if or .Values.application_grpc_secret (lookup "v1" "Secret" .Release.Namespace (printf "%s-application-grpc-secret" .Values.name)) }}
+        - name: application-secret
+          secret:
+            secretName: {{ .Values.name }}-application-grpc-secret
+            optional: true
+{{- end }}
+
 {{- if .Values.volumes }}
 {{- toYaml .Values.volumes | nindent 8 }}
 {{- end }}
