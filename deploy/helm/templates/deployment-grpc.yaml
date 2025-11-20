@@ -67,13 +67,13 @@ spec:
               mountPath: /opt/spaceone/{{ .Values.name }}/config/application.yaml
               subPath: application.yaml
               readOnly: true
-{{- if .Values.global.shared_secret.enabled }}
+{{- if and (.Values.shared_secret.enabled) (lookup "v1" "Secret" .Release.Namespace "shared-secret") }}
             - name: shared-secret
               mountPath: /opt/spaceone/{{ .Values.name }}/config/shared-secret.yaml
               subPath: shared-secret.yaml
               readOnly: true
 {{- end }}
-{{- if or .Values.application_grpc_secret (lookup "v1" "Secret" .Release.Namespace (printf "%s-application-grpc-secret" .Values.name)) }}
+{{- if (lookup "v1" "Secret" .Release.Namespace (printf "%s-application-grpc-secret" .Values.name)) }}
             - name: application-secret
               mountPath: /opt/spaceone/{{ .Values.name }}/config/application-secret.yaml
               subPath: application-secret.yaml
@@ -112,12 +112,12 @@ spec:
         - name: application-conf
           configMap:
             name: {{ .Values.name }}-application-grpc-conf
-{{- if .Values.global.shared_secret.enabled }}
+{{- if and (.Values.shared_secret.enabled) (lookup "v1" "Secret" .Release.Namespace "shared-secret") }}
         - name: shared-secret
           secret:
             secretName: shared-secret
 {{- end }}
-{{- if or .Values.application_grpc_secret (lookup "v1" "Secret" .Release.Namespace (printf "%s-application-grpc-secret" .Values.name)) }}
+{{- if (lookup "v1" "Secret" .Release.Namespace (printf "%s-application-grpc-secret" .Values.name)) }}
         - name: application-secret
           secret:
             secretName: {{ .Values.name }}-application-grpc-secret
