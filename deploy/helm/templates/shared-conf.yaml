@@ -8,6 +8,5 @@ metadata:
 data:
   shared.yaml: |-
 {{- toYaml .Values.global.shared_conf | nindent 4}}
-{{- if not .Values.global.shared_secret.enabled }}
-{{- toYaml .Values.global.shared_secret | nindent 4 }}
+{{- end }}
 {{- end }}
